@@ -45,6 +45,14 @@ public class Main {
             card.payBillWithBalance(150, "2424", "1234567890123456");
             System.out.println("Card: \n" + card);
 
+            acc.requestLoan(500);
+            System.out.println("After Loan Request: " + acc);
+            System.out.println("Loan Balance: " + acc.getLoanBalance());
+
+            System.out.println("\nRepaying loan of 200.0...");
+            acc.repayLoan(200.0);
+            System.out.println("Loan Balance: " + acc.getLoanBalance());
+
         } catch (InsufficientAmountException | InsufficientBalanceException | SsnNotValidException
                 | InsufficientCreditException e) {
             System.out.println(e.getMessage());

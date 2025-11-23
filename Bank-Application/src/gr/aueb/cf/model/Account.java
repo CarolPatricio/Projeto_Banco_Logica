@@ -15,6 +15,7 @@ public class Account extends IdentifiableEntity {
     private User holder = new User();
     private String iban;
     private double balance;
+    private double loanBalance;
 
     /**
      * Default constructor initializing an empty account with a new User holder.
@@ -32,6 +33,7 @@ public class Account extends IdentifiableEntity {
         this.holder = holder;
         this.iban = iban;
         this.balance = balance;
+        this.loanBalance = 0;
     }
 
     // Getters / Setters
@@ -59,6 +61,14 @@ public class Account extends IdentifiableEntity {
         this.balance = balance;
     }
 
+    public double getLoanBalance() {
+        return loanBalance;
+    }
+
+    public void setLoanBalance(double loanBalance) {
+        this.loanBalance = loanBalance;
+    }
+
     // Returns a string representation of the account
     @Override
     public String toString() {
@@ -66,6 +76,7 @@ public class Account extends IdentifiableEntity {
                 "holder=" + holder.toString() +
                 ", iban='" + iban + '\'' +
                 ", balance=" + balance +
+                ", loanBalance=" + loanBalance +
                 '}';
     }
 
@@ -115,6 +126,38 @@ public class Account extends IdentifiableEntity {
             System.err.println("Error: Withdrawal");
             throw e;
         }
+    }
+
+
+    /**
+     * Requests a loan of a given amount.
+     * The amount is added to the account balance and the loan balance.
+     *
+     * @param amount the amount of the loan
+     * @throws InsufficientAmountException if the amount is zero or negative
+     */
+    public void requestLoan(double amount) throws InsufficientAmountException {
+        if (amount <= 0) throw new InsufficientAmountException(amount);
+        
+        balance += amount;
+        loanBalance += amount;
+    }
+
+    /**
+     * Repays a portion of the loan.
+     *
+     * @param amount the amount to repay
+     * @throws InsufficientAmountException if the amount is zero or negative
+     * @throws InsufficientBalanceException if the account balance is insufficient
+     * @throws IllegalArgumentException if the repayment amount exceeds the loan balance
+     */
+    public void repayLoan(double amount) throws InsufficientAmountException, InsufficientBalanceException {
+        if (amount <= 0) throw new InsufficientAmountException(amount);
+        if (amount > balance) throw new InsufficientBalanceException(balance, amount);
+        if (amount > loanBalance) throw new IllegalArgumentException("Repayment amount exceeds loan balance.");
+
+        balance -= amount;
+        loanBalance -= amount;
     }
 
     /**
