@@ -91,6 +91,48 @@ public class Main {
             System.out.println("Source account (John): " + acc);
             System.out.println("Destination account (Michael): " + acc2);
 
+            // Account management features
+            System.out.println("\n=== Account Management ===");
+            
+            // Update holder information
+            System.out.println("\nUpdating holder's name...");
+            System.out.println("Before: " + acc.getHolder());
+            acc.updateHolderName("John", "Smith", "2424");
+            System.out.println("After: " + acc.getHolder());
+            
+            // Generate account statement
+            System.out.println("\n=== Account Statement ===");
+            System.out.println(acc.generateStatement());
+            
+            // Try to close account with balance (should fail)
+            System.out.println("\n=== Attempting to Close Account ===");
+            System.out.println("Current balance: " + acc.getBalance());
+            System.out.println("Current loan balance: " + acc.getLoanBalance());
+            try {
+                acc.closeAccount("2424");
+            } catch (IllegalStateException e) {
+                System.out.println("Cannot close account: " + e.getMessage());
+            }
+            
+            // Repay remaining loan and withdraw balance
+            System.out.println("\nRepaying remaining loan...");
+            acc.repayLoan(acc.getLoanBalance());
+            System.out.println("Withdrawing remaining balance...");
+            acc.withdraw(acc.getBalance(), "2424");
+            
+            // Now close the account
+            System.out.println("\nClosing account...");
+            acc.closeAccount("2424");
+            System.out.println("Account status: " + (acc.isActive() ? "ACTIVE" : "CLOSED"));
+            
+            // Try to perform operations on closed account (should fail)
+            System.out.println("\nTrying to deposit on closed account...");
+            try {
+                acc.deposit(100);
+            } catch (IllegalStateException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+
         } catch (InsufficientAmountException | InsufficientBalanceException | SsnNotValidException
                 | InsufficientCreditException e) {
             System.out.println(e.getMessage());

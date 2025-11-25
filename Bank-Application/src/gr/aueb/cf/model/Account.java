@@ -5,6 +5,9 @@ import gr.aueb.cf.exceptions.InsufficientBalanceException;
 import gr.aueb.cf.exceptions.SsnNotValidException;
 import gr.aueb.cf.exceptions.InsufficientCreditException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The {@code Account} class represents a bank account belonging to a user,
  * identified by a unique International Bank Account Number (IBAN).
@@ -19,6 +22,8 @@ public class Account extends IdentifiableEntity {
     private double loanBalance;
     private double creditLimit; // Maximum loan amount allowed
     private double interestRate; // Annual interest rate (e.g., 0.05 for 5%)
+    private boolean isActive; // Account status (true = active, false = closed)
+    private List<Transaction> transactionHistory; // History of all transactions
 
     /**
      * Default constructor initializing an empty account with a new User holder.
@@ -27,6 +32,8 @@ public class Account extends IdentifiableEntity {
         this.loanBalance = 0;
         this.creditLimit = 10000.0; // Default credit limit
         this.interestRate = 0.05; // Default 5% annual interest rate
+        this.isActive = true; // Account starts as active
+        this.transactionHistory = new ArrayList<>();
     }
 
     /**
@@ -43,6 +50,12 @@ public class Account extends IdentifiableEntity {
         this.loanBalance = 0;
         this.creditLimit = 10000.0; // Default credit limit
         this.interestRate = 0.05; // Default 5% annual interest rate
+        this.isActive = true; // Account starts as active
+        this.transactionHistory = new ArrayList<>();
+        // Record initial deposit if balance > 0
+        if (balance > 0) {
+            addTransaction(Transaction.TransactionType.DEPOSIT, balance, "Initial deposit", balance);
+        }
     }
 
     // Getters / Setters
@@ -94,6 +107,14 @@ public class Account extends IdentifiableEntity {
         this.interestRate = interestRate;
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public List<Transaction> getTransactionHistory() {
+        return new ArrayList<>(transactionHistory); // Return a copy to prevent external modification
+    }
+
     // Returns a string representation of the account
     @Override
     public String toString() {
@@ -104,6 +125,7 @@ public class Account extends IdentifiableEntity {
                 ", loanBalance=" + loanBalance +
                 ", creditLimit=" + creditLimit +
                 ", interestRate=" + (interestRate * 100) + "%" +
+                ", isActive=" + isActive +
                 '}';
     }
 
@@ -115,14 +137,19 @@ public class Account extends IdentifiableEntity {
      *
      * @param amount amount to be deposited
      * @throws InsufficientAmountException if amount is zero or negative
+     * @throws IllegalStateException if account is closed
      */
     public void deposit(double amount) throws InsufficientAmountException {
+        if (!isActive) {
+            throw new IllegalStateException("Cannot perform operations on a closed account.");
+        }
         try {
             if(amount <= 0){
                 throw new InsufficientAmountException(amount);
             }
 
             balance += amount;
+            addTransaction(Transaction.TransactionType.DEPOSIT, amount, "Deposit", balance);
         } catch (InsufficientAmountException e) {
             System.err.println("Error: Negative or Zero Amount");
             throw e;
@@ -138,15 +165,20 @@ public class Account extends IdentifiableEntity {
      * @throws InsufficientBalanceException if the amount is greater than the current balance
      * @throws SsnNotValidException if the social security number doesn't match the holder's SSN
      * @throws InsufficientAmountException if the amount is zero or negative
+     * @throws IllegalStateException if account is closed
      */
     public void withdraw(double amount, String ssn)
             throws InsufficientBalanceException, SsnNotValidException, InsufficientAmountException {
+        if (!isActive) {
+            throw new IllegalStateException("Cannot perform operations on a closed account.");
+        }
         try {
             if(amount <= 0) throw new InsufficientAmountException(amount);
             if(amount > balance) throw new InsufficientBalanceException(getBalance(), amount);
             if(!isSsnValid(ssn)) throw new SsnNotValidException(ssn);
 
             balance -= amount;
+            addTransaction(Transaction.TransactionType.WITHDRAWAL, amount, "Withdrawal", balance);
 
         } catch (InsufficientAmountException | InsufficientBalanceException | SsnNotValidException e){
             // Would be better to have more catch statements and have exception specific err messages
@@ -182,6 +214,7 @@ public class Account extends IdentifiableEntity {
         // Approve loan: add to balance and loan balance
         balance += amount;
         loanBalance += amount;
+        addTransaction(Transaction.TransactionType.LOAN_REQUEST, amount, "Loan request", balance);
     }
 
     /**
@@ -241,6 +274,7 @@ public class Account extends IdentifiableEntity {
 
         balance -= amount;
         loanBalance -= amount;
+        addTransaction(Transaction.TransactionType.LOAN_REPAYMENT, amount, "Loan repayment", balance);
     }
 
     /**
@@ -283,9 +317,13 @@ public class Account extends IdentifiableEntity {
             
             // Realizar transferência: debitar da conta origem
             balance -= amount;
+            addTransaction(Transaction.TransactionType.TRANSFER_OUT, amount, 
+                    "Transfer to " + destinationAccount.getIban(), balance);
             
-            // Creditar na conta destino usando o método deposit
-            destinationAccount.deposit(amount);
+            // Creditar na conta destino
+            destinationAccount.balance += amount;
+            destinationAccount.addTransaction(Transaction.TransactionType.TRANSFER_IN, amount,
+                    "Transfer from " + this.iban, destinationAccount.getBalance());
             
         } catch (InsufficientAmountException | InsufficientBalanceException | SsnNotValidException e) {
             System.err.println("Error: Transfer failed");
@@ -304,6 +342,185 @@ public class Account extends IdentifiableEntity {
 
         // We dont use getHolder because we are in the same class
         return holder.getSsn().equals(ssn);
+    }
+
+    /**
+     * Closes the account. An account can only be closed if:
+     * - The balance is zero (or positive)
+     * - There are no outstanding loans
+     *
+     * @param ssn the social security number of the account holder
+     * @throws SsnNotValidException if the SSN is not valid
+     * @throws IllegalStateException if the account cannot be closed (has balance or loans)
+     */
+    public void closeAccount(String ssn) throws SsnNotValidException, IllegalStateException {
+        if (!isSsnValid(ssn)) {
+            throw new SsnNotValidException(ssn);
+        }
+        
+        if (!isActive) {
+            throw new IllegalStateException("Account is already closed.");
+        }
+        
+        if (balance < 0) {
+            throw new IllegalStateException("Cannot close account with negative balance.");
+        }
+        
+        if (loanBalance > 0) {
+            throw new IllegalStateException("Cannot close account with outstanding loan balance: " + loanBalance);
+        }
+        
+        // If balance > 0, it should be withdrawn first, but we'll allow closing with zero balance
+        if (balance > 0) {
+            throw new IllegalStateException("Cannot close account with remaining balance. Please withdraw " + balance + " first.");
+        }
+        
+        isActive = false;
+        addTransaction(Transaction.TransactionType.WITHDRAWAL, 0, "Account closed", balance);
+    }
+
+    /**
+     * Updates the account holder's first name.
+     *
+     * @param newFirstName the new first name
+     * @param ssn the social security number for verification
+     * @throws SsnNotValidException if the SSN is not valid
+     * @throws IllegalStateException if account is closed
+     */
+    public void updateHolderFirstName(String newFirstName, String ssn) throws SsnNotValidException {
+        if (!isActive) {
+            throw new IllegalStateException("Cannot update data on a closed account.");
+        }
+        if (!isSsnValid(ssn)) {
+            throw new SsnNotValidException(ssn);
+        }
+        holder.setFirstName(newFirstName);
+    }
+
+    /**
+     * Updates the account holder's last name.
+     *
+     * @param newLastName the new last name
+     * @param ssn the social security number for verification
+     * @throws SsnNotValidException if the SSN is not valid
+     * @throws IllegalStateException if account is closed
+     */
+    public void updateHolderLastName(String newLastName, String ssn) throws SsnNotValidException {
+        if (!isActive) {
+            throw new IllegalStateException("Cannot update data on a closed account.");
+        }
+        if (!isSsnValid(ssn)) {
+            throw new SsnNotValidException(ssn);
+        }
+        holder.setLastName(newLastName);
+    }
+
+    /**
+     * Updates the account holder's full name.
+     *
+     * @param newFirstName the new first name
+     * @param newLastName the new last name
+     * @param ssn the social security number for verification
+     * @throws SsnNotValidException if the SSN is not valid
+     * @throws IllegalStateException if account is closed
+     */
+    public void updateHolderName(String newFirstName, String newLastName, String ssn) throws SsnNotValidException {
+        if (!isActive) {
+            throw new IllegalStateException("Cannot update data on a closed account.");
+        }
+        if (!isSsnValid(ssn)) {
+            throw new SsnNotValidException(ssn);
+        }
+        holder.setFirstName(newFirstName);
+        holder.setLastName(newLastName);
+    }
+
+    /**
+     * Generates a statement (extract) of the account showing all transactions.
+     *
+     * @return a formatted string containing the account statement
+     */
+    public String generateStatement() {
+        StringBuilder statement = new StringBuilder();
+        statement.append("========================================\n");
+        statement.append("ACCOUNT STATEMENT\n");
+        statement.append("========================================\n");
+        statement.append("IBAN: ").append(iban).append("\n");
+        statement.append("Holder: ").append(holder.getFirstName()).append(" ").append(holder.getLastName()).append("\n");
+        statement.append("SSN: ").append(holder.getSsn()).append("\n");
+        statement.append("Status: ").append(isActive ? "ACTIVE" : "CLOSED").append("\n");
+        statement.append("Current Balance: ").append(String.format("%.2f", balance)).append("\n");
+        statement.append("Loan Balance: ").append(String.format("%.2f", loanBalance)).append("\n");
+        statement.append("Credit Limit: ").append(String.format("%.2f", creditLimit)).append("\n");
+        statement.append("========================================\n");
+        statement.append("TRANSACTION HISTORY\n");
+        statement.append("========================================\n");
+        
+        if (transactionHistory.isEmpty()) {
+            statement.append("No transactions recorded.\n");
+        } else {
+            for (Transaction transaction : transactionHistory) {
+                statement.append(transaction.toString()).append("\n");
+            }
+        }
+        
+        statement.append("========================================\n");
+        statement.append("Total Transactions: ").append(transactionHistory.size()).append("\n");
+        statement.append("========================================\n");
+        
+        return statement.toString();
+    }
+
+    /**
+     * Generates a statement for a specific date range.
+     *
+     * @param startDate the start date (inclusive)
+     * @param endDate the end date (inclusive)
+     * @return a formatted string containing the filtered statement
+     */
+    public String generateStatement(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
+        StringBuilder statement = new StringBuilder();
+        statement.append("========================================\n");
+        statement.append("ACCOUNT STATEMENT (FILTERED)\n");
+        statement.append("========================================\n");
+        statement.append("IBAN: ").append(iban).append("\n");
+        statement.append("Holder: ").append(holder.getFirstName()).append(" ").append(holder.getLastName()).append("\n");
+        statement.append("Period: ").append(startDate.toString()).append(" to ").append(endDate.toString()).append("\n");
+        statement.append("Current Balance: ").append(String.format("%.2f", balance)).append("\n");
+        statement.append("========================================\n");
+        statement.append("TRANSACTION HISTORY\n");
+        statement.append("========================================\n");
+        
+        int count = 0;
+        for (Transaction transaction : transactionHistory) {
+            if (!transaction.getDate().isBefore(startDate) && !transaction.getDate().isAfter(endDate)) {
+                statement.append(transaction.toString()).append("\n");
+                count++;
+            }
+        }
+        
+        if (count == 0) {
+            statement.append("No transactions found in the specified period.\n");
+        }
+        
+        statement.append("========================================\n");
+        statement.append("Filtered Transactions: ").append(count).append("\n");
+        statement.append("========================================\n");
+        
+        return statement.toString();
+    }
+
+    /**
+     * Helper method to add a transaction to the history.
+     * This method is package-private to allow Card class to add transactions.
+     *
+     * @param type the type of transaction
+     * @param amount the amount
+     * @param description the description
+     * @param balanceAfter the balance after the transaction
+     */
+    void addTransaction(Transaction.TransactionType type, double amount, String description, double balanceAfter) {
+        transactionHistory.add(new Transaction(type, amount, description, balanceAfter));
     }
 
 }
