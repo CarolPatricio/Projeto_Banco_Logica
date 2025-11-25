@@ -45,13 +45,39 @@ public class Main {
             card.payBillWithBalance(150, "2424", "1234567890123456");
             System.out.println("Card: \n" + card);
 
+            // Enhanced loan functionality demonstration
+            System.out.println("\n=== Loan System ===");
+            System.out.println("Account credit limit: " + acc.getCreditLimit());
+            System.out.println("Interest rate: " + (acc.getInterestRate() * 100) + "%");
+            System.out.println("Eligible for loan: " + acc.isEligibleForLoan());
+            System.out.println("Available credit: " + acc.getAvailableCredit());
+            
+            // Request a loan
+            System.out.println("\nRequesting loan of 500.0...");
             acc.requestLoan(500);
             System.out.println("After Loan Request: " + acc);
             System.out.println("Loan Balance: " + acc.getLoanBalance());
-
+            System.out.println("Available credit: " + acc.getAvailableCredit());
+            
+            // Calculate interest for 12 months
+            double interest12Months = acc.calculateInterest(12);
+            double totalAmount = acc.calculateTotalLoanAmount(12);
+            System.out.println("\nInterest for 12 months: " + interest12Months);
+            System.out.println("Total amount to repay (12 months): " + totalAmount);
+            
+            // Repay part of the loan
             System.out.println("\nRepaying loan of 200.0...");
             acc.repayLoan(200.0);
             System.out.println("Loan Balance: " + acc.getLoanBalance());
+            System.out.println("Available credit: " + acc.getAvailableCredit());
+            
+            // Try to request a loan that exceeds credit limit
+            System.out.println("\nTrying to request loan of 15000.0 (exceeds credit limit)...");
+            try {
+                acc.requestLoan(15000.0);
+            } catch (InsufficientCreditException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
 
             // Account transfer example
             System.out.println("\n=== Account Transfer ===");

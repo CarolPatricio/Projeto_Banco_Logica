@@ -3,6 +3,7 @@ package gr.aueb.cf.model;
 import gr.aueb.cf.exceptions.InsufficientAmountException;
 import gr.aueb.cf.exceptions.InsufficientBalanceException;
 import gr.aueb.cf.exceptions.SsnNotValidException;
+import gr.aueb.cf.exceptions.InsufficientCreditException;
 
 /**
  * The {@code Account} class represents a bank account belonging to a user,
@@ -16,11 +17,17 @@ public class Account extends IdentifiableEntity {
     private String iban;
     private double balance;
     private double loanBalance;
+    private double creditLimit; // Maximum loan amount allowed
+    private double interestRate; // Annual interest rate (e.g., 0.05 for 5%)
 
     /**
      * Default constructor initializing an empty account with a new User holder.
      */
-    public Account() {}
+    public Account() {
+        this.loanBalance = 0;
+        this.creditLimit = 10000.0; // Default credit limit
+        this.interestRate = 0.05; // Default 5% annual interest rate
+    }
 
     /**
      * Overloaded constructor initializing an account with a holder, IBAN and initial balance.
@@ -34,6 +41,8 @@ public class Account extends IdentifiableEntity {
         this.iban = iban;
         this.balance = balance;
         this.loanBalance = 0;
+        this.creditLimit = 10000.0; // Default credit limit
+        this.interestRate = 0.05; // Default 5% annual interest rate
     }
 
     // Getters / Setters
@@ -69,6 +78,22 @@ public class Account extends IdentifiableEntity {
         this.loanBalance = loanBalance;
     }
 
+    public double getCreditLimit() {
+        return creditLimit;
+    }
+
+    public void setCreditLimit(double creditLimit) {
+        this.creditLimit = creditLimit;
+    }
+
+    public double getInterestRate() {
+        return interestRate;
+    }
+
+    public void setInterestRate(double interestRate) {
+        this.interestRate = interestRate;
+    }
+
     // Returns a string representation of the account
     @Override
     public String toString() {
@@ -77,6 +102,8 @@ public class Account extends IdentifiableEntity {
                 ", iban='" + iban + '\'' +
                 ", balance=" + balance +
                 ", loanBalance=" + loanBalance +
+                ", creditLimit=" + creditLimit +
+                ", interestRate=" + (interestRate * 100) + "%" +
                 '}';
     }
 
@@ -132,15 +159,71 @@ public class Account extends IdentifiableEntity {
     /**
      * Requests a loan of a given amount.
      * The amount is added to the account balance and the loan balance.
+     * Validates credit limit and eligibility before approving the loan.
      *
      * @param amount the amount of the loan
      * @throws InsufficientAmountException if the amount is zero or negative
+     * @throws InsufficientCreditException if the loan amount exceeds the credit limit or available credit
      */
-    public void requestLoan(double amount) throws InsufficientAmountException {
+    public void requestLoan(double amount) throws InsufficientAmountException, InsufficientCreditException {
         if (amount <= 0) throw new InsufficientAmountException(amount);
         
+        // Check if loan amount exceeds credit limit
+        if (amount > creditLimit) {
+            throw new InsufficientCreditException(creditLimit, amount);
+        }
+        
+        // Check if total loan balance would exceed credit limit
+        if (loanBalance + amount > creditLimit) {
+            double availableCredit = creditLimit - loanBalance;
+            throw new InsufficientCreditException(availableCredit, amount);
+        }
+        
+        // Approve loan: add to balance and loan balance
         balance += amount;
         loanBalance += amount;
+    }
+
+    /**
+     * Calculates the interest amount for the current loan balance.
+     * Interest is calculated based on the annual interest rate.
+     *
+     * @param months number of months to calculate interest for
+     * @return the interest amount
+     */
+    public double calculateInterest(int months) {
+        if (loanBalance <= 0) return 0.0;
+        // Simple interest calculation: principal * rate * time
+        return loanBalance * interestRate * (months / 12.0);
+    }
+
+    /**
+     * Calculates the total amount to repay including interest.
+     *
+     * @param months number of months for the loan term
+     * @return total amount (principal + interest)
+     */
+    public double calculateTotalLoanAmount(int months) {
+        return loanBalance + calculateInterest(months);
+    }
+
+    /**
+     * Checks if the account is eligible for a loan.
+     * An account is eligible if it has available credit.
+     *
+     * @return true if eligible, false otherwise
+     */
+    public boolean isEligibleForLoan() {
+        return loanBalance < creditLimit;
+    }
+
+    /**
+     * Gets the available credit (credit limit minus current loan balance).
+     *
+     * @return available credit amount
+     */
+    public double getAvailableCredit() {
+        return Math.max(0, creditLimit - loanBalance);
     }
 
     /**
