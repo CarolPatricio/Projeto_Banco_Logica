@@ -53,6 +53,18 @@ public class Main {
             acc.repayLoan(200.0);
             System.out.println("Loan Balance: " + acc.getLoanBalance());
 
+            // Account transfer example
+            System.out.println("\n=== Account Transfer ===");
+            Account acc2 = new Account(michael, "GR5678", 500);
+            System.out.println("Before transfer:");
+            System.out.println("Source account (John): " + acc);
+            System.out.println("Destination account (Michael): " + acc2);
+            
+            acc.transfer(200, "2424", acc2);
+            System.out.println("\nAfter transfer of 200.0:");
+            System.out.println("Source account (John): " + acc);
+            System.out.println("Destination account (Michael): " + acc2);
+
         } catch (InsufficientAmountException | InsufficientBalanceException | SsnNotValidException
                 | InsufficientCreditException e) {
             System.out.println(e.getMessage());

@@ -161,6 +161,56 @@ public class Account extends IdentifiableEntity {
     }
 
     /**
+     * Transfers a given amount from this account to another account.
+     * For regular accounts, the balance must be sufficient. For overdraft accounts,
+     * the balance can go negative.
+     *
+     * @param amount the amount to be transferred
+     * @param ssn the social security number of the account holder (sender)
+     * @param destinationAccount the account to receive the transfer
+     * @throws InsufficientAmountException if the amount is zero or negative
+     * @throws InsufficientBalanceException if the amount is greater than the current balance (only for regular accounts)
+     * @throws SsnNotValidException if the social security number doesn't match the holder's SSN
+     * @throws IllegalArgumentException if the destination account is null or the same as the source account
+     */
+    public void transfer(double amount, String ssn, Account destinationAccount)
+            throws InsufficientAmountException, InsufficientBalanceException, SsnNotValidException {
+        try {
+            // Validar valor
+            if (amount <= 0) throw new InsufficientAmountException(amount);
+            
+            // Validar conta destino
+            if (destinationAccount == null) {
+                throw new IllegalArgumentException("Destination account cannot be null.");
+            }
+            
+            // Validar que não está transferindo para a mesma conta
+            if (this.equals(destinationAccount)) {
+                throw new IllegalArgumentException("Cannot transfer to the same account.");
+            }
+            
+            // Validar SSN
+            if (!isSsnValid(ssn)) throw new SsnNotValidException(ssn);
+            
+            // Verificar saldo (apenas para contas normais, não para overdraft)
+            // Se for OverdraftAccount, não precisa verificar saldo
+            if (!(this instanceof OverdraftAccount) && amount > balance) {
+                throw new InsufficientBalanceException(getBalance(), amount);
+            }
+            
+            // Realizar transferência: debitar da conta origem
+            balance -= amount;
+            
+            // Creditar na conta destino usando o método deposit
+            destinationAccount.deposit(amount);
+            
+        } catch (InsufficientAmountException | InsufficientBalanceException | SsnNotValidException e) {
+            System.err.println("Error: Transfer failed");
+            throw e;
+        }
+    }
+
+    /**
      * Checks if a given social security number (SSN) is the same as the account holder's.
      *
      * @param ssn the social security number to be checked
