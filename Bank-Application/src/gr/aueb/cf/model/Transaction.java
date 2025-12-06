@@ -21,11 +21,21 @@ public class Transaction {
         BILL_PAYMENT
     }
 
+    //@ spec_public
     private TransactionType type;
+    //@ spec_public
     private double amount;
+    //@ spec_public
     private LocalDateTime date;
+    //@ spec_public
     private String description;
     private double balanceAfter;
+
+    //@ public invariant type != null;
+    //@ public invariant amount >= 0;
+    //@ public invariant date != null;
+    //@ public invariant description != null;
+    //@ public invariant !description.isEmpty();
 
     /**
      * Constructor for creating a transaction.

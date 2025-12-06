@@ -15,11 +15,6 @@ import gr.aueb.cf.exceptions.SsnNotValidException;
 public class OverdraftJointAccount extends JointAccount{
 
     /**
-     * Default constructor initializing an empty overdraft joint account.
-     */
-    public OverdraftJointAccount() {}
-
-    /**
      * Overloaded constructor initializing an overdraft joint account with a first holder, IBAN, initial balance and second holder.
      *
      * @param holder the first user who holds the account

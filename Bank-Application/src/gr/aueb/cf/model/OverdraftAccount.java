@@ -1,7 +1,6 @@
 package gr.aueb.cf.model;
 
 import gr.aueb.cf.exceptions.InsufficientAmountException;
-import gr.aueb.cf.exceptions.InsufficientBalanceException;
 import gr.aueb.cf.exceptions.SsnNotValidException;
 
 /**
@@ -13,11 +12,6 @@ import gr.aueb.cf.exceptions.SsnNotValidException;
  * @author Ntirintis John
  */
 public class OverdraftAccount extends Account {
-
-    /**
-     * Default constructor initializing an empty overdraft account.
-     */
-    public OverdraftAccount() {}
 
     /**
      * Overloaded constructor initializing an overdraft account with a holder, IBAN, and initial balance.

@@ -16,7 +16,7 @@ import java.util.List;
  * @author Ntirintis John
  */
 public class Account extends IdentifiableEntity {
-    private User holder = new User();
+    private User holder;
     private String iban;
     private double balance;
     private double loanBalance;
@@ -25,16 +25,6 @@ public class Account extends IdentifiableEntity {
     private boolean isActive; // Account status (true = active, false = closed)
     private List<Transaction> transactionHistory; // History of all transactions
 
-    /**
-     * Default constructor initializing an empty account with a new User holder.
-     */
-    public Account() {
-        this.loanBalance = 0;
-        this.creditLimit = 10000.0; // Default credit limit
-        this.interestRate = 0.05; // Default 5% annual interest rate
-        this.isActive = true; // Account starts as active
-        this.transactionHistory = new ArrayList<>();
-    }
 
     /**
      * Overloaded constructor initializing an account with a holder, IBAN and initial balance.

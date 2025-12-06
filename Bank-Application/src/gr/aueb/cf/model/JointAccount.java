@@ -8,22 +8,7 @@ package gr.aueb.cf.model;
  * @author Ntirintis John
  */
 public class JointAccount extends Account {
-    private User secondHolder = new User();
-
-    public JointAccount() {}
-
-    /**
-     * Default constructor initializing an empty joint account with a new User as the second holder.
-     */
-    public JointAccount(User secondHolder) {
-        this.secondHolder = secondHolder;
-    }
-
-    /**
-     * Overloaded constructor initializing a joint account with a User as the second holder.
-     *
-     * @param secondHolder the second user who holds the account
-     */
+    private User secondHolder;
 
     /**
      * Overloaded constructor initializing a joint account with a first holder, IBAN, initial balance and second holder.

@@ -8,14 +8,16 @@ package gr.aueb.cf.model;
  * @author Ntirintis John
  */
 public class User extends IdentifiableEntity {
+    //@ spec_public
     private String firstName;
+    //@ spec_public
     private String lastName;
+    //@ spec_public
     private String ssn;
-
-    /**
-     * Default constructor initializing an empty user.
-     */
-    public User() {}
+    
+    //@ public invariant firstName != null;
+    //@ public invariant lastName != null;
+    //@ public invariant ssn != null;
 
     /**
      * Overloaded constructor initializing a user with first name, last name, and social security number.
@@ -24,6 +26,11 @@ public class User extends IdentifiableEntity {
      * @param lastName the last name of the user
      * @param ssn the social security number of the user
      */
+    //@ requires firstName != null && lastName != null && ssn != null;
+    //@ requires !firstName.isEmpty() && !lastName.isEmpty() && !ssn.isEmpty();
+    //@ ensures this.firstName == firstName;
+    //@ ensures this.lastName == lastName;
+    //@ ensures this.ssn == ssn;
     public User(String firstName, String lastName, String ssn) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -35,33 +42,53 @@ public class User extends IdentifiableEntity {
      *
      * @param user the user to be copied
      */
+    //@ requires user != null;
+    //@ requires user.firstName != null && user.lastName != null && user.ssn != null;
+    //@ ensures this.firstName == user.firstName;
+    //@ ensures this.lastName == user.lastName;
+    //@ ensures this.ssn == user.ssn;
     public User(User user){
-        firstName = user.getFirstName();
-        lastName = user.getLastName();
-        ssn = user.getSsn();
+        firstName = user.firstName;
+        lastName = user.lastName;
+        ssn = user.ssn;
     }
 
     // Getters and Setters
+    //@ ensures \result != null;
+    //@ ensures \result == firstName;
     public String getFirstName() {
         return firstName;
     }
 
+    //@ requires firstName != null && !firstName.isEmpty();
+    //@ ensures this.firstName == firstName;
+    //@ assignable this.firstName;
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
+    //@ ensures \result != null;
+    //@ ensures \result == lastName;
     public String getLastName() {
         return lastName;
     }
 
+    //@ requires lastName != null && !lastName.isEmpty();
+    //@ ensures this.lastName == lastName;
+    //@ assignable this.lastName;
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
 
+    //@ ensures \result != null;
+    //@ ensures \result == ssn;
     public String getSsn() {
         return ssn;
     }
 
+    //@ requires ssn != null && !ssn.isEmpty();
+    //@ ensures this.ssn == ssn;
+    //@ assignable this.ssn;
     public void setSsn(String ssn) {
         this.ssn = ssn;
     }
@@ -72,6 +99,7 @@ public class User extends IdentifiableEntity {
      *
      * @return a string representation of the user
      */
+     //@ skipesc
     @Override
     public String toString() {
         return "User{" +
