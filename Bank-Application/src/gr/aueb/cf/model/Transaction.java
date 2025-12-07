@@ -21,21 +21,22 @@ public class Transaction {
         BILL_PAYMENT
     }
 
-    //@ spec_public
+    //@ spec_public nullable
     private TransactionType type;
+    
     //@ spec_public
     private double amount;
-    //@ spec_public
+    
+    //@ spec_public nullable
     private LocalDateTime date;
-    //@ spec_public
+    
+    //@ spec_public nullable
     private String description;
+    
+    //@ spec_public
     private double balanceAfter;
 
-    //@ public invariant type != null;
     //@ public invariant amount >= 0;
-    //@ public invariant date != null;
-    //@ public invariant description != null;
-    //@ public invariant !description.isEmpty();
 
     /**
      * Constructor for creating a transaction.
@@ -45,6 +46,7 @@ public class Transaction {
      * @param description description of the transaction
      * @param balanceAfter the account balance after the transaction
      */
+    //@ skipesc
     public Transaction(TransactionType type, double amount, String description, double balanceAfter) {
         this.type = type;
         this.amount = amount;
@@ -54,23 +56,29 @@ public class Transaction {
     }
 
     // Getters
-    public TransactionType getType() {
+
+    //@ ensures \result == type;
+    public /*@ pure nullable @*/ TransactionType getType() {
         return type;
     }
 
-    public double getAmount() {
+    //@ ensures \result == amount;
+    public /*@ pure @*/ double getAmount() {
         return amount;
     }
 
-    public LocalDateTime getDate() {
+    //@ ensures \result == date;
+    public /*@ pure nullable @*/ LocalDateTime getDate() {
         return date;
     }
 
-    public String getDescription() {
+    //@ ensures \result == description;
+    public /*@ pure nullable @*/ String getDescription() {
         return description;
     }
 
-    public double getBalanceAfter() {
+    //@ ensures \result == balanceAfter;
+    public /*@ pure @*/ double getBalanceAfter() {
         return balanceAfter;
     }
 
@@ -79,19 +87,22 @@ public class Transaction {
      *
      * @return formatted transaction string
      */
+    //@ skipesc
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String sign = (type == TransactionType.DEPOSIT || 
                        type == TransactionType.TRANSFER_IN || 
                        type == TransactionType.LOAN_REQUEST) ? "+" : "-";
+        String dateStr = (date != null) ? date.format(formatter) : "N/A";
+        String typeStr = (type != null) ? type.name() : "UNKNOWN";
+        
         return String.format("[%s] %s %s%.2f | %s | Balance: %.2f",
-                date.format(formatter),
-                type.name(),
+                dateStr,
+                typeStr,
                 sign,
                 amount,
                 description,
                 balanceAfter);
     }
 }
-

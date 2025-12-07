@@ -9,6 +9,8 @@ public class InsufficientCreditException extends Exception {
     public InsufficientCreditException() {
     }
 
+    //@ requires amount > credit;
+    //@ ensures getMessage() != null;
     public InsufficientCreditException(double credit, double amount) {
         super("Insufficient Credit " + credit + " for amount " + amount);
     }
