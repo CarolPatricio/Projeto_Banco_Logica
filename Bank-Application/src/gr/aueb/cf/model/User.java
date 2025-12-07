@@ -82,6 +82,7 @@ public class User extends IdentifiableEntity {
 
     //@ ensures \result != null;
     //@ ensures \result == ssn;
+    /*@ pure @*/
     public String getSsn() {
         return ssn;
     }

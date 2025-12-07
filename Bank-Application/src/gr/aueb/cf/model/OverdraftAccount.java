@@ -20,6 +20,11 @@ public class OverdraftAccount extends Account {
      * @param iban the international bank account number of the account
      * @param balance the initial balance of the account
      */
+    /*@
+      @ requires holder != null;
+      @ requires iban != null;
+      @ requires balance >= 0; // <--- OBRIGATÓRIO: O pai exige isso!
+      @*/
     public OverdraftAccount(User holder, String iban, double balance) {
         super(holder, iban, balance);
     }
@@ -44,7 +49,7 @@ public class OverdraftAccount extends Account {
 
         } catch (InsufficientAmountException | SsnNotValidException e){
             // Would be better to have more catch statements and have exception specific err messages
-            System.err.println("Error: Withdrawal");
+            //System.err.println("Error: Withdrawal");
             throw e;
         }
     }

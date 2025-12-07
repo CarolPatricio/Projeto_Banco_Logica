@@ -45,7 +45,7 @@ public class OverdraftJointAccount extends JointAccount{
             setBalance(getBalance() - amount);
         } catch (SsnNotValidException | InsufficientAmountException e) {
             // Would be better to have more catch statements and have exception specific err messages
-            System.err.println("Error: withdrawal");
+            //System.err.println("Error: withdrawal");
             throw e;
         }
     }
