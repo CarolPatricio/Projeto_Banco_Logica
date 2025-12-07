@@ -231,17 +231,20 @@ public class Account extends IdentifiableEntity {
       @ also
       @ public exceptional_behavior
       @   requires !isActive;
+      @   assignable \nothing;
       @   signals (IllegalStateException);
       @ also
       @ public exceptional_behavior
       @   requires isActive;
       @   requires amount <= 0;
+      @   assignable \nothing;
       @   signals (InsufficientAmountException) amount <= 0;
       @ also
       @ public exceptional_behavior
       @   requires isActive;
       @   requires amount > 0;
       @   requires (amount > balance) && !(this instanceof OverdraftAccount);
+      @   assignable \nothing;
       @   signals (InsufficientBalanceException) amount > balance;
       @*/
     public void withdraw(double amount, String ssn) 

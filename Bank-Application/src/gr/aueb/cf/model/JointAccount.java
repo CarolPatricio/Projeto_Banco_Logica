@@ -56,7 +56,7 @@ public class JointAccount extends Account {
      * @return true if the given SSN matches either the first or the second holder's, false otherwise
      */
     @Override
-    protected boolean isSsnValid(String ssn) {
+    public boolean isSsnValid(String ssn) {
         return super.isSsnValid(ssn) || secondHolder.getSsn().equals(ssn);
     }
 }
