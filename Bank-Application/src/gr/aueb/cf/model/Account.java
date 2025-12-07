@@ -35,7 +35,7 @@ public class Account extends IdentifiableEntity {
     //@ spec_public
     private boolean isActive;
     //@ spec_public nullable
-    private List<Transaction> transactionHistory = new ArrayList<>();;
+    private List<Transaction> transactionHistory = new ArrayList<>();
 
     //@ public invariant holder != null;
     //@ public invariant iban != null;
