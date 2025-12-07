@@ -1,11 +1,8 @@
 package gr.aueb.cf.model;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 /**
  * The {@code Transaction} class represents a bank transaction.
- * It stores information about the transaction type, amount, date, and description.
+ * Refactored: Removed date and description for simplified verification.
  *
  * @author Bank Application
  */
@@ -27,12 +24,6 @@ public class Transaction {
     //@ spec_public
     private double amount;
     
-    //@ spec_public nullable
-    private LocalDateTime date;
-    
-    //@ spec_public nullable
-    private String description;
-    
     //@ spec_public
     private double balanceAfter;
 
@@ -40,19 +31,21 @@ public class Transaction {
 
     /**
      * Constructor for creating a transaction.
-     *
-     * @param type the type of transaction
+     * * @param type the type of transaction
      * @param amount the amount involved
-     * @param description description of the transaction
      * @param balanceAfter the account balance after the transaction
      */
-    //@ skipesc
-    public Transaction(TransactionType type, double amount, String description, double balanceAfter) {
+    /*@ 
+      @ requires amount >= 0;
+      @ ensures this.type == type;
+      @ ensures this.amount == amount;
+      @ ensures this.balanceAfter == balanceAfter;
+      @ pure 
+      @*/
+    public Transaction(TransactionType type, double amount, double balanceAfter) {
         this.type = type;
         this.amount = amount;
-        this.description = description;
         this.balanceAfter = balanceAfter;
-        this.date = LocalDateTime.now();
     }
 
     // Getters
@@ -65,16 +58,6 @@ public class Transaction {
     //@ ensures \result == amount;
     public /*@ pure @*/ double getAmount() {
         return amount;
-    }
-
-    //@ ensures \result == date;
-    public /*@ pure nullable @*/ LocalDateTime getDate() {
-        return date;
-    }
-
-    //@ ensures \result == description;
-    public /*@ pure nullable @*/ String getDescription() {
-        return description;
     }
 
     //@ ensures \result == balanceAfter;
@@ -90,19 +73,16 @@ public class Transaction {
     //@ skipesc
     @Override
     public String toString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String sign = (type == TransactionType.DEPOSIT || 
                        type == TransactionType.TRANSFER_IN || 
                        type == TransactionType.LOAN_REQUEST) ? "+" : "-";
-        String dateStr = (date != null) ? date.format(formatter) : "N/A";
+        
         String typeStr = (type != null) ? type.name() : "UNKNOWN";
         
-        return String.format("[%s] %s %s%.2f | %s | Balance: %.2f",
-                dateStr,
+        return String.format("[%s] %s%.2f | Balance: %.2f",
                 typeStr,
                 sign,
                 amount,
-                description,
                 balanceAfter);
     }
 }

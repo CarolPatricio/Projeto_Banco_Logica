@@ -8,6 +8,7 @@ public class InsufficientAmountException extends Exception {
 
     //@ requires amount <= 0;
     //@ ensures getMessage() != null;
+    /*@ pure @*/
     public InsufficientAmountException(double amount){
         super("Amount" + amount + "is negative");
     }

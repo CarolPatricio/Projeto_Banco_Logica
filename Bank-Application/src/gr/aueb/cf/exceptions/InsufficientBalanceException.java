@@ -13,6 +13,7 @@ public class InsufficientBalanceException extends Exception {
 
     //@ requires amount > balance;
     //@ ensures getMessage() != null;
+    /*@ pure @*/
     public InsufficientBalanceException(double balance, double amount) {
         super("Insufficient Balance " + balance + " for amount " + amount);
     }
