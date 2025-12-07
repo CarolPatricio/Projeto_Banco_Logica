@@ -70,9 +70,8 @@ public class Transaction {
      *
      * @return formatted transaction string
      */
-    //@ skipesc
     @Override
-    public String toString() {
+    public /*@ pure skipesc @*/ String toString() {
         String sign = (type == TransactionType.DEPOSIT || 
                        type == TransactionType.TRANSFER_IN || 
                        type == TransactionType.LOAN_REQUEST) ? "+" : "-";

@@ -56,26 +56,34 @@ public class User extends IdentifiableEntity {
     // Getters and Setters
     //@ ensures \result != null;
     //@ ensures \result == firstName;
+    /*@ pure @*/
     public String getFirstName() {
         return firstName;
     }
 
-    //@ requires firstName != null && !firstName.isEmpty();
-    //@ ensures this.firstName == firstName;
-    //@ assignable this.firstName;
+    /*@ 
+      @ public normal_behavior
+      @   requires firstName != null && !firstName.isEmpty();
+      @   assignable this.firstName;
+      @   ensures this.firstName == firstName;
+      @*/
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
     //@ ensures \result != null;
     //@ ensures \result == lastName;
+    /*@ pure @*/
     public String getLastName() {
         return lastName;
     }
 
-    //@ requires lastName != null && !lastName.isEmpty();
-    //@ ensures this.lastName == lastName;
-    //@ assignable this.lastName;
+    /*@ 
+      @ public normal_behavior
+      @   requires lastName != null && !lastName.isEmpty();
+      @   assignable this.lastName;
+      @   ensures this.lastName == lastName;
+      @*/
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }

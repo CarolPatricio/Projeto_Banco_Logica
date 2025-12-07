@@ -23,7 +23,7 @@ public class OverdraftAccount extends Account {
     /*@
       @ requires holder != null;
       @ requires iban != null;
-      @ requires balance >= 0; // <--- OBRIGATÓRIO: O pai exige isso!
+      @ requires balance >= 0;
       @*/
     public OverdraftAccount(User holder, String iban, double balance) {
         super(holder, iban, balance);
@@ -38,19 +38,36 @@ public class OverdraftAccount extends Account {
      * @throws SsnNotValidException if the social security number doesn't match the holder's SSN
      * @throws InsufficientAmountException if the amount is zero or negative
      */
-    @Override
-    public void withdraw(double amount, String ssn)
-            throws SsnNotValidException, InsufficientAmountException {
-        try {
-            if(amount <= 0) throw new InsufficientAmountException(amount);
-            if(!isSsnValid(ssn)) throw new SsnNotValidException(ssn);
-
-            setBalance(getBalance() - amount);
-
-        } catch (InsufficientAmountException | SsnNotValidException e){
-            // Would be better to have more catch statements and have exception specific err messages
-            //System.err.println("Error: Withdrawal");
-            throw e;
-        }
-    }
+    // /*@
+    //   @ also
+    //   @ public normal_behavior
+    //   @   requires isActive;
+    //   @   requires amount > 0;
+    //   @   requires ssn != null;
+    //   @   requires transactionHistory != null;
+    //   @   assignable balance, transactionHistory.values;
+    //   @   ensures balance == \old(balance) - amount;
+    //   @   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
+    //   @ also
+    //   @ public exceptional_behavior
+    //   @   requires !isActive;
+    //   @   signals (IllegalStateException);
+    //   @ also
+    //   @ public exceptional_behavior
+    //   @   requires isActive;
+    //   @   requires amount <= 0;
+    //   @   signals (InsufficientAmountException) amount <= 0;
+    //   @*/
+    // @Override
+    // public void withdraw(double amount, String ssn) 
+    //         throws InsufficientAmountException {
+    //     if (!isActive()) {
+    //         throw new IllegalStateException("Cannot perform operations on a closed account.");
+    //     }
+    //     if (amount <= 0) {
+    //         throw new InsufficientAmountException(amount);
+    //     }
+    //     setBalance(getBalance() - amount);
+    //     addTransaction(Transaction.TransactionType.WITHDRAWAL, amount, getBalance());
+    // }
 }
