@@ -268,32 +268,65 @@ public class Card {
         bill += amount;
     }
 
-    // /**
-    //  * This method allows the user to make a debit purchase.
-    //  * 
-    //  * @param amount the amount of the purchase.
-    //  * @param ssn    the social security number of the user.
-    //  * @throws InsufficientAmountException  if the amount is zero or negative.
-    //  * @throws InsufficientBalanceException if the balance is not valid.
-    //  * @throws SsnNotValidException         if the ssn is not valid.
-    //  */
-    // public void debitPurchase(double amount, String ssn)
-    //         throws InsufficientAmountException, InsufficientBalanceException, SsnNotValidException {
-    //     try {
-    //         if (amount < 0)
-    //             throw new InsufficientAmountException(amount);
-    //         if (!account.isSsnValid(ssn))
-    //             throw new SsnNotValidException(ssn);
-    //         if (amount > account.getBalance())
-    //             throw new InsufficientBalanceException(account.getBalance(), amount);
+    /**
+     * This method allows the user to make a debit purchase.
+     * 
+     * @param amount the amount of the purchase.
+     * @param ssn    the social security number of the user.
+     * @throws InsufficientAmountException  if the amount is zero or negative.
+     * @throws InsufficientBalanceException if the balance is not valid.
+     * @throws SsnNotValidException         if the ssn is not valid.
+     */
+    //@ public behavior
+    //@   requires amount > 0;
+    //@   requires amount <= account.getBalance();
+    //@   requires holder != null;
+    //@   requires account != null;
+    //@   requires account.isSsnValid(ssn);
+    //@   assignable account.balance;
+    //@   ensures account.getBalance() == \old(account.getBalance()) - amount;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount < 0;
+    //@   requires holder != null;
+    //@   requires account != null;
+    //@   assignable \nothing;
+    //@   signals (InsufficientAmountException e) amount < 0;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount >= 0;
+    //@   requires holder != null;
+    //@   requires account != null;
+    //@   requires !account.isSsnValid(ssn);
+    //@   assignable \nothing;
+    //@   signals (SsnNotValidException e) true;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount > 0;
+    //@   requires holder != null;
+    //@   requires account != null;
+    //@   requires account.isSsnValid(ssn);
+    //@   requires amount > account.getBalance();
+    //@   assignable \nothing;
+    //@   signals (InsufficientBalanceException e) amount > account.getBalance();
+    //@ skipesc
+    public void debitPurchase(double amount, String ssn)
+            throws InsufficientAmountException, InsufficientBalanceException, SsnNotValidException {
+        try {
+            if (amount < 0)
+                throw new InsufficientAmountException(amount);
+            if (!account.isSsnValid(ssn))
+                throw new SsnNotValidException(ssn);
+            if (amount > account.getBalance())
+                throw new InsufficientBalanceException(account.getBalance(), amount);
 
-    //         account.withdraw(amount, ssn);
+            account.withdraw(amount, ssn);
 
-    //     } catch (InsufficientBalanceException | SsnNotValidException | InsufficientAmountException e) {
-    //         System.err.println("Error: Debit Limit Insufficient");
-    //         throw e;
-    //     }
-    // }
+        } catch (InsufficientBalanceException | SsnNotValidException | InsufficientAmountException e) {
+            System.err.println("Error: Debit Limit Insufficient");
+            throw e;
+        }
+    }
 
     /**
      * This method allows the user to pay a bill with the balance.
@@ -305,30 +338,79 @@ public class Card {
      * @throws InsufficientBalanceException if the balance is not valid.
      * @throws SsnNotValidException         if the ssn is not valid.
      */
-    // public void payBillWithBalance(double amount, String ssn, String number)
-    //         throws InsufficientAmountException, InsufficientBalanceException, SsnNotValidException {
-    //     try {
-    //         if (amount < 0)
-    //             throw new InsufficientAmountException(amount);
-    //         if (!account.isSsnValid(ssn))
-    //             throw new SsnNotValidException(ssn);
-    //         if (amount > account.getBalance())
-    //             throw new InsufficientBalanceException(account.getBalance(), amount);
+    //@ public behavior
+    //@   requires amount > 0;
+    //@   requires amount <= account.getBalance();
+    //@   requires holder != null;
+    //@   requires account != null;
+    //@   requires number != null;
+    //@   requires account.isSsnValid(ssn);
+    //@   requires amount <= bill;
+    //@   assignable bill, account.balance;
+    //@   ensures bill == \old(bill) - amount;
+    //@ also
+    //@ public behavior
+    //@   requires amount > 0;
+    //@   requires bill <= account.getBalance();
+    //@   requires holder != null;
+    //@   requires account != null;
+    //@   requires number != null;
+    //@   requires account.isSsnValid(ssn);
+    //@   requires amount > bill;
+    //@   assignable bill, account.balance;
+    //@   ensures bill == 0;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount < 0;
+    //@   requires holder != null;
+    //@   requires account != null;
+    //@   requires number != null;
+    //@   assignable \nothing;
+    //@   signals (InsufficientAmountException e) amount < 0;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount >= 0;
+    //@   requires holder != null;
+    //@   requires account != null;
+    //@   requires number != null;
+    //@   requires !account.isSsnValid(ssn);
+    //@   assignable \nothing;
+    //@   signals (SsnNotValidException e) true;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount > 0;
+    //@   requires holder != null;
+    //@   requires account != null;
+    //@   requires number != null;
+    //@   requires account.isSsnValid(ssn);
+    //@   requires amount > account.getBalance();
+    //@   assignable \nothing;
+    //@   signals (InsufficientBalanceException e) amount > account.getBalance();
+    //@ skipesc
+    public void payBillWithBalance(double amount, String ssn, String number)
+            throws InsufficientAmountException, InsufficientBalanceException, SsnNotValidException {
+        try {
+            if (amount < 0)
+                throw new InsufficientAmountException(amount);
+            if (!account.isSsnValid(ssn))
+                throw new SsnNotValidException(ssn);
+            if (amount > account.getBalance())
+                throw new InsufficientBalanceException(account.getBalance(), amount);
 
-    //         if (amount > bill) {
-    //             account.withdraw(bill, ssn);
-    //             double remainingValue = amount - bill;
-    //             bill = 0;
-    //             System.out.println(
-    //                     "Amount exceeds the bill, the remaining value of " + remainingValue + " was not deducted");
-    //         } else {
-    //             account.withdraw(amount, ssn);
-    //             bill -= amount;
-    //         }
+            if (amount > bill) {
+                account.withdraw(bill, ssn);
+                double remainingValue = amount - bill;
+                bill = 0;
+                System.out.println(
+                        "Amount exceeds the bill, the remaining value of " + remainingValue + " was not deducted");
+            } else {
+                account.withdraw(amount, ssn);
+                bill -= amount;
+            }
 
-    //     } catch (InsufficientBalanceException | SsnNotValidException | InsufficientAmountException e) {
-    //         System.err.println("Error: Debit Limit Insufficient");
-    //         throw e;
-    //     }
-    // }
+        } catch (InsufficientBalanceException | SsnNotValidException | InsufficientAmountException e) {
+            System.err.println("Error: Debit Limit Insufficient");
+            throw e;
+        }
+    }
 }
