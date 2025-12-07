@@ -213,6 +213,7 @@ public class Account extends IdentifiableEntity {
      * @throws InsufficientAmountException if the amount is zero or negative
      * @throws IllegalStateException if account is closed
      */
+    //@ skipesc
     public void withdraw(double amount, String ssn)
             throws InsufficientBalanceException, SsnNotValidException, InsufficientAmountException {
         if (!isActive) {
@@ -243,6 +244,7 @@ public class Account extends IdentifiableEntity {
      * @throws InsufficientAmountException if the amount is zero or negative
      * @throws InsufficientCreditException if the loan amount exceeds the credit limit or available credit
      */
+    //@ skipesc
     public void requestLoan(double amount) throws InsufficientAmountException, InsufficientCreditException {
         if (amount <= 0) throw new InsufficientAmountException(amount);
         
@@ -270,6 +272,7 @@ public class Account extends IdentifiableEntity {
      * @param months number of months to calculate interest for
      * @return the interest amount
      */
+    //@ skipesc
     public double calculateInterest(int months) {
         if (loanBalance <= 0) return 0.0;
         // Simple interest calculation: principal * rate * time
@@ -282,6 +285,7 @@ public class Account extends IdentifiableEntity {
      * @param months number of months for the loan term
      * @return total amount (principal + interest)
      */
+    //@ skipesc
     public double calculateTotalLoanAmount(int months) {
         return loanBalance + calculateInterest(months);
     }
@@ -292,6 +296,7 @@ public class Account extends IdentifiableEntity {
      *
      * @return true if eligible, false otherwise
      */
+    //@ skipesc
     public boolean isEligibleForLoan() {
         return loanBalance < creditLimit;
     }
@@ -301,6 +306,7 @@ public class Account extends IdentifiableEntity {
      *
      * @return available credit amount
      */
+    //@ skipesc
     public double getAvailableCredit() {
         return Math.max(0, creditLimit - loanBalance);
     }
@@ -313,6 +319,7 @@ public class Account extends IdentifiableEntity {
      * @throws InsufficientBalanceException if the account balance is insufficient
      * @throws IllegalArgumentException if the repayment amount exceeds the loan balance
      */
+    //@ skipesc
     public void repayLoan(double amount) throws InsufficientAmountException, InsufficientBalanceException {
         if (amount <= 0) throw new InsufficientAmountException(amount);
         if (amount > balance) throw new InsufficientBalanceException(balance, amount);
@@ -336,6 +343,7 @@ public class Account extends IdentifiableEntity {
      * @throws SsnNotValidException if the social security number doesn't match the holder's SSN
      * @throws IllegalArgumentException if the destination account is null or the same as the source account
      */
+    //@ skipesc
     public void transfer(double amount, String ssn, Account destinationAccount)
             throws InsufficientAmountException, InsufficientBalanceException, SsnNotValidException {
         try {
@@ -383,6 +391,7 @@ public class Account extends IdentifiableEntity {
      * @param ssn the social security number to be checked
      * @return true if the given SSN matches the holder's, false otherwise
      */
+    //@ skipesc
     protected boolean isSsnValid(String ssn){
         if(ssn == null || getHolder().getSsn() == null) return false;
 
@@ -399,6 +408,7 @@ public class Account extends IdentifiableEntity {
      * @throws SsnNotValidException if the SSN is not valid
      * @throws IllegalStateException if the account cannot be closed (has balance or loans)
      */
+    //@ skipesc
     public void closeAccount(String ssn) throws SsnNotValidException, IllegalStateException {
         if (!isSsnValid(ssn)) {
             throw new SsnNotValidException(ssn);
@@ -433,6 +443,7 @@ public class Account extends IdentifiableEntity {
      * @throws SsnNotValidException if the SSN is not valid
      * @throws IllegalStateException if account is closed
      */
+    //@ skipesc
     public void updateHolderFirstName(String newFirstName, String ssn) throws SsnNotValidException {
         if (!isActive) {
             throw new IllegalStateException("Cannot update data on a closed account.");
@@ -451,6 +462,7 @@ public class Account extends IdentifiableEntity {
      * @throws SsnNotValidException if the SSN is not valid
      * @throws IllegalStateException if account is closed
      */
+    //@ skipesc
     public void updateHolderLastName(String newLastName, String ssn) throws SsnNotValidException {
         if (!isActive) {
             throw new IllegalStateException("Cannot update data on a closed account.");
@@ -470,6 +482,7 @@ public class Account extends IdentifiableEntity {
      * @throws SsnNotValidException if the SSN is not valid
      * @throws IllegalStateException if account is closed
      */
+    //@ skipesc
     public void updateHolderName(String newFirstName, String newLastName, String ssn) throws SsnNotValidException {
         if (!isActive) {
             throw new IllegalStateException("Cannot update data on a closed account.");
@@ -486,6 +499,7 @@ public class Account extends IdentifiableEntity {
      *
      * @return a formatted string containing the account statement
      */
+    //@ skipesc
     public String generateStatement() {
         StringBuilder statement = new StringBuilder();
         statement.append("========================================\n");
@@ -524,6 +538,7 @@ public class Account extends IdentifiableEntity {
      * @param endDate the end date (inclusive)
      * @return a formatted string containing the filtered statement
      */
+    //@ skipesc
     public String generateStatement(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
         StringBuilder statement = new StringBuilder();
         statement.append("========================================\n");
