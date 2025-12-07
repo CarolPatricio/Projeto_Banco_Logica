@@ -472,13 +472,13 @@ public class Account extends IdentifiableEntity {
      * @param ssn the social security number to be checked
      * @return true if the given SSN matches the holder's, false otherwise
      */
-    // /*@ pure @*/
-    // public boolean isSsnValid(String ssn){
-    //     if(ssn == null || getHolder().getSsn() == null) return false;
+    /*@ pure @*/
+    public boolean isSsnValid(String ssn){
+        if(ssn == null || getHolder().getSsn() == null) return false;
 
-    //     // We dont use getHolder because we are in the same class
-    //     return holder.getSsn().equals(ssn);
-    // }
+        // We dont use getHolder because we are in the same class
+        return holder.getSsn().equals(ssn);
+    }
 
     // /**
     //  * Closes the account. An account can only be closed if:
