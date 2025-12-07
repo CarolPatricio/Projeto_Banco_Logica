@@ -4,6 +4,7 @@ import gr.aueb.cf.exceptions.InsufficientAmountException;
 import gr.aueb.cf.exceptions.InsufficientBalanceException;
 import gr.aueb.cf.exceptions.SsnNotValidException;
 import gr.aueb.cf.exceptions.InsufficientCreditException;
+import java.time.LocalDateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,96 +17,133 @@ import java.util.List;
  * @author Ntirintis John
  */
 public class Account extends IdentifiableEntity {
+
+    //@ spec_public
+    //@ nullable
     private User holder;
+    //@ spec_public
+    //@ non_null
     private String iban;
+    //@ spec_public
     private double balance;
+    //@ spec_public
     private double loanBalance;
-    private double creditLimit; // Maximum loan amount allowed
-    private double interestRate; // Annual interest rate (e.g., 0.05 for 5%)
-    private boolean isActive; // Account status (true = active, false = closed)
-    private List<Transaction> transactionHistory; // History of all transactions
+    //@ spec_public
+    private double creditLimit;
+    //@ spec_public
+    private double interestRate;
+    //@ spec_public
+    private boolean isActive;
+    //@ spec_public nullable
+    private List<Transaction> transactionHistory = new ArrayList<>();;
 
+    //@ public invariant holder != null;
+    //@ public invariant iban != null;
+    //@ public invariant transactionHistory != null;
 
-    /**
-     * Overloaded constructor initializing an account with a holder, IBAN and initial balance.
-     *
-     * @param holder the user who holds the account
-     * @param iban the international bank account number of the account
-     * @param balance the initial balance of the account
-     */
+    //@ requires holder != null;
+    //@ requires iban != null;
+    //@ requires balance >= 0;
+    //@ ensures this.holder == holder;
+    //@ ensures this.iban == iban;
+    //@ ensures this.balance == balance;
+    //@ ensures this.loanBalance == 0;
+    //@ ensures this.creditLimit == 10000.0;
+    //@ ensures this.interestRate == 0.05;
+    //@ ensures this.isActive == true;
+    //@ ensures this.transactionHistory != null;
     public Account(User holder, String iban, double balance) {
         this.holder = holder;
         this.iban = iban;
         this.balance = balance;
         this.loanBalance = 0;
-        this.creditLimit = 10000.0; // Default credit limit
-        this.interestRate = 0.05; // Default 5% annual interest rate
-        this.isActive = true; // Account starts as active
-        this.transactionHistory = new ArrayList<>();
-        // Record initial deposit if balance > 0
+        this.creditLimit = 10000.0; 
+        this.interestRate = 0.05; 
+        this.isActive = true;
         if (balance > 0) {
             addTransaction(Transaction.TransactionType.DEPOSIT, balance, "Initial deposit", balance);
         }
     }
 
     // Getters / Setters
+    //@ ensures \result != null;
+    //@ pure
     public User getHolder() {
         return holder;
     }
 
+    //@ requires holder != null;
+    //@ assignable this.holder;
+    //@ ensures this.holder == holder;
     public void setHolder(User holder) {
         this.holder = holder;
     }
 
+    //@ ensures \result != null; 
+    //@ pure
     public String getIban() {
         return iban;
     }
 
+    //@ requires iban != null;
+    //@ assignable this.iban;
     public void setIban(String iban) {
         this.iban = iban;
     }
 
+    //@ pure
     public double getBalance() {
         return balance;
     }
 
+    //@ assignable this.balance;
     public void setBalance(double balance) {
         this.balance = balance;
     }
 
+    //@ pure
     public double getLoanBalance() {
         return loanBalance;
     }
 
+    //@ assignable this.loanBalance;
     public void setLoanBalance(double loanBalance) {
         this.loanBalance = loanBalance;
     }
 
+    //@ pure
     public double getCreditLimit() {
         return creditLimit;
     }
 
+    //@ requires creditLimit >= 0;
+    //@ assignable this.creditLimit;
     public void setCreditLimit(double creditLimit) {
         this.creditLimit = creditLimit;
     }
 
+    //@ pure
     public double getInterestRate() {
         return interestRate;
     }
 
+    //@ requires interestRate >= 0;
+    //@ assignable this.interestRate;
     public void setInterestRate(double interestRate) {
         this.interestRate = interestRate;
     }
 
+    //@ pure
     public boolean isActive() {
         return isActive;
     }
 
+    //@ pure
     public List<Transaction> getTransactionHistory() {
-        return new ArrayList<>(transactionHistory); // Return a copy to prevent external modification
+        return new ArrayList<>(transactionHistory);
     }
 
-    // Returns a string representation of the account
+    //@ skipesc
     @Override
     public String toString() {
         return "Account{" +
@@ -121,29 +159,47 @@ public class Account extends IdentifiableEntity {
 
     // Public API
 
-
     /**
-     * Deposits a given amount to the bank account
-     *
-     * @param amount amount to be deposited
-     * @throws InsufficientAmountException if amount is zero or negative
-     * @throws IllegalStateException if account is closed
-     */
+    * Deposits a given amount to the bank account
+    *
+    * @param amount amount to be deposited
+    * @throws InsufficientAmountException if amount is zero or negative
+    * @throws IllegalStateException if account is closed
+    */
+    //@ public normal_behavior
+    //@   requires amount > 0;
+    //@   requires isActive;
+    //@   requires holder != null;
+    //@   requires iban != null;
+    //@   requires transactionHistory != null;
+    //@   requires id >= 0;                  // se IdentifiableEntity exige id >= 0
+    //@   assignable balance, transactionHistory, transactionHistory.*;
+    //@   ensures balance == \old(balance) + amount;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount <= 0;
+    //@   requires holder != null;
+    //@   requires iban != null;
+    //@   requires transactionHistory != null;
+    //@   requires id >= 0;
+    //@   signals (InsufficientAmountException e) amount <= 0;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires !isActive;
+    //@   requires holder != null;
+    //@   requires iban != null;
+    //@   requires transactionHistory != null;
+    //@   requires id >= 0;
+    //@   signals (IllegalStateException e) !isActive;
     public void deposit(double amount) throws InsufficientAmountException {
         if (!isActive) {
             throw new IllegalStateException("Cannot perform operations on a closed account.");
         }
-        try {
-            if(amount <= 0){
-                throw new InsufficientAmountException(amount);
-            }
-
-            balance += amount;
-            addTransaction(Transaction.TransactionType.DEPOSIT, amount, "Deposit", balance);
-        } catch (InsufficientAmountException e) {
-            System.err.println("Error: Negative or Zero Amount");
-            throw e;
+        if(amount <= 0){
+            throw new InsufficientAmountException(amount);
         }
+        balance += amount;
+        addTransaction(Transaction.TransactionType.DEPOSIT, amount, "Deposit", balance);
     }
 
     /**
@@ -500,17 +556,14 @@ public class Account extends IdentifiableEntity {
         return statement.toString();
     }
 
-    /**
-     * Helper method to add a transaction to the history.
-     * This method is package-private to allow Card class to add transactions.
-     *
-     * @param type the type of transaction
-     * @param amount the amount
-     * @param description the description
-     * @param balanceAfter the balance after the transaction
-     */
-    void addTransaction(Transaction.TransactionType type, double amount, String description, double balanceAfter) {
-        transactionHistory.add(new Transaction(type, amount, description, balanceAfter));
-    }
 
+    //@ requires type != null;
+    //@ requires description != null;
+    //@ assignable transactionHistory, transactionHistory.*;
+    //@ ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
+    //@ helper
+    private void addTransaction(Transaction.TransactionType type, double amount, 
+                                String description, double balanceAfter) {
+        transactionHistory.add(new Transaction(type, amount, description, balanceAfter));
+}
 }
