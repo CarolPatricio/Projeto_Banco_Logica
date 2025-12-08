@@ -61,9 +61,9 @@ public class User extends IdentifiableEntity {
     }
 
     //@ public normal_behavior
-    //@   requires firstName != null && !firstName.isEmpty();
-    //@   assignable this.firstName;
-    //@   ensures this.firstName == firstName;
+    //@ requires firstName != null && !firstName.isEmpty();
+    //@ assignable this.firstName;
+    //@ ensures this.firstName == firstName;
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -76,9 +76,9 @@ public class User extends IdentifiableEntity {
     }
 
     //@ public normal_behavior
-    //@   requires lastName != null && !lastName.isEmpty();
-    //@   assignable this.lastName;
-    //@   ensures this.lastName == lastName;
+    //@ requires lastName != null && !lastName.isEmpty();
+    //@ assignable this.lastName;
+    //@ ensures this.lastName == lastName;
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
