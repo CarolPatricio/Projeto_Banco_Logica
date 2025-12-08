@@ -18,7 +18,6 @@ public class User extends IdentifiableEntity {
     //@ public invariant firstName != null;
     //@ public invariant lastName != null;
     //@ public invariant ssn != null;
-
     /**
      * Overloaded constructor initializing a user with first name, last name, and social security number.
      *

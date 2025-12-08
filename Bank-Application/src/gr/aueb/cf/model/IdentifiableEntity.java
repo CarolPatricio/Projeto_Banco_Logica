@@ -12,17 +12,11 @@ public class IdentifiableEntity {
     private long id;
     
     //@ public invariant id >= 0;
+    //@ public constraint id == \old(id);
 
     //@ ensures \result == id;
     //@ ensures \result >= 0;
     public long getId() {
         return id;
-    }
-
-    //@ requires id >= 0;
-    //@ ensures this.id == id;
-    //@ assignable this.id;
-    public void setId(long id) {
-        this.id = id;
     }
 }

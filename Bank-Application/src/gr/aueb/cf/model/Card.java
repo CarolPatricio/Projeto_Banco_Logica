@@ -43,7 +43,9 @@ public class Card {
     //@ public invariant cvv != null;
     //@ public invariant expiryDate != null;
     //@ public invariant creditLimit >= 0;
+    //@ public initially bill == 0;
     //@ public invariant bill >= 0;
+    //@ public constraint number.equals(\old(number));
 
     /**
      * Constructor initializing a card with all attributes.
@@ -118,13 +120,6 @@ public class Card {
     //@ pure
     public String getNumber() {
         return number;
-    }
-
-    //@ requires number != null && !number.isEmpty();
-    //@ assignable this.number;
-    //@ ensures this.number == number;
-    public void setNumber(String number) {
-        this.number = number;
     }
 
     //@ ensures \result != null;
@@ -283,6 +278,7 @@ public class Card {
     //@   requires amount <= account.getBalance();
     //@   requires holder != null;
     //@   requires account != null;
+    //@   requires account.transactionHistory != null;
     //@   requires account.isSsnValid(ssn);
     //@   assignable account.balance, account.transactionHistory.values;
     //@   ensures account.getBalance() == \old(account.getBalance()) - amount;
@@ -337,6 +333,7 @@ public class Card {
     //@   requires amount > bill;
     //@   requires holder != null;
     //@   requires account != null;
+    //@   requires account.transactionHistory != null;
     //@   requires account.isSsnValid(ssn);
     //@   assignable account.balance, account.transactionHistory.values, bill;
     //@   ensures bill == 0;
@@ -348,6 +345,7 @@ public class Card {
     //@   requires amount <= bill;
     //@   requires holder != null;
     //@   requires account != null;
+    //@   requires account.transactionHistory != null;
     //@   requires account.isSsnValid(ssn);
     //@   assignable account.balance, account.transactionHistory.values, bill;
     //@   ensures bill == \old(bill) - amount;

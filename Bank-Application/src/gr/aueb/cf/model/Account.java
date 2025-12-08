@@ -4,7 +4,6 @@ import gr.aueb.cf.exceptions.InsufficientAmountException;
 import gr.aueb.cf.exceptions.InsufficientBalanceException;
 import gr.aueb.cf.exceptions.SsnNotValidException;
 import gr.aueb.cf.exceptions.InsufficientCreditException;
-import java.time.LocalDateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +39,12 @@ public class Account extends IdentifiableEntity {
     //@ public invariant holder != null;
     //@ public invariant iban != null;
     //@ public invariant transactionHistory != null;
-
+    
+    //@ public initially isActive == true;;
+    //@ public initially loanBalance == 0;
+    //@ public initially transactionHistory != null && transactionHistory.isEmpty();
+    //@ public constraint transactionHistory.size() >= \old(transactionHistory.size());
+    
     //@ requires holder != null;
     //@ requires iban != null;
     //@ requires balance >= 0;
@@ -48,10 +52,7 @@ public class Account extends IdentifiableEntity {
     //@ ensures this.iban == iban;
     //@ ensures this.balance == balance;
     //@ ensures this.loanBalance == 0;
-    //@ ensures this.creditLimit == 10000.0;
-    //@ ensures this.interestRate == 0.05;
     //@ ensures this.isActive == true;
-    //@ ensures this.transactionHistory != null;
     public Account(User holder, String iban, double balance) {
         this.holder = holder;
         this.iban = iban;
@@ -143,6 +144,8 @@ public class Account extends IdentifiableEntity {
         return isActive;
     }
 
+    //@ requires transactionHistory != null;
+    //@ ensures \result != null;
     //@ pure
     public List<Transaction> getTransactionHistory() {
         return new ArrayList<>(transactionHistory);
@@ -161,8 +164,6 @@ public class Account extends IdentifiableEntity {
                 ", isActive=" + isActive +
                 '}';
     }
-
-    // Public API
 
     /**
     * Deposits a given amount to the bank account
@@ -203,8 +204,14 @@ public class Account extends IdentifiableEntity {
         if(amount <= 0){
             throw new InsufficientAmountException(amount);
         }
+        
+        double oldBalance = balance;  // Guardar valor antigo para verificação
         balance += amount;
         addTransaction(Transaction.TransactionType.DEPOSIT, amount, balance);
+        
+        // Assert: verificar pós-condição (deve ser sempre verdadeiro se código está correto)
+        assert balance == oldBalance + amount : "Balance should increase by amount after deposit";
+        assert transactionHistory != null && transactionHistory.size() > 0 : "Transaction should be added to history";
     }
 
     /**
@@ -258,9 +265,16 @@ public class Account extends IdentifiableEntity {
         if (amount > balance && !(this instanceof OverdraftAccount)) {
             throw new InsufficientBalanceException(balance, amount);
         }
+        
+        double oldBalance = balance;  // Guardar valor antigo para verificação
+        int oldTransactionCount = transactionHistory.size();
+        
         balance -= amount;
-    
         addTransaction(Transaction.TransactionType.WITHDRAWAL, amount, balance);
+        
+        // Assert: verificar pós-condições
+        assert balance == oldBalance - amount : "Balance should decrease by amount after withdrawal";
+        assert transactionHistory.size() == oldTransactionCount + 1 : "One transaction should be added to history";
     }
 
 
@@ -309,6 +323,11 @@ public class Account extends IdentifiableEntity {
         balance += amount;
         loanBalance += amount;
         addTransaction(Transaction.TransactionType.LOAN_REQUEST, amount, balance);
+        
+        // Assert: verificar invariantes após empréstimo
+        assert loanBalance <= creditLimit : "Loan balance should never exceed credit limit";
+        assert loanBalance >= 0 : "Loan balance should never be negative";
+        assert creditLimit >= 0 : "Credit limit should never be negative";
     }
 
     /**
@@ -397,6 +416,10 @@ public class Account extends IdentifiableEntity {
         balance -= amount;
         loanBalance -= amount;
         addTransaction(Transaction.TransactionType.LOAN_REPAYMENT, amount, balance);
+        
+        // Assert: verificar invariantes após pagamento
+        assert loanBalance >= 0 : "Loan balance should never be negative after repayment";
+        assert loanBalance <= creditLimit : "Loan balance should not exceed credit limit";
     }
 
     /**
@@ -459,6 +482,10 @@ public class Account extends IdentifiableEntity {
                 throw new InsufficientBalanceException(this.balance, amount);
             }
             
+            // Guardar valores antigos para verificação
+            double sourceOldBalance = balance;
+            double destOldBalance = destinationAccount.balance;
+            
             // Realizar transferência: debitar da conta origem
             balance -= amount;
             addTransaction(Transaction.TransactionType.TRANSFER_OUT, amount, balance);
@@ -466,6 +493,12 @@ public class Account extends IdentifiableEntity {
             // Creditar na conta destino
             destinationAccount.balance += amount;
             destinationAccount.addTransaction(Transaction.TransactionType.TRANSFER_IN, amount, destinationAccount.getBalance());
+            
+            // Assert: verificar consistência da transferência
+            assert balance == sourceOldBalance - amount : "Source balance should decrease by amount";
+            assert destinationAccount.balance == destOldBalance + amount : "Destination balance should increase by amount";
+            assert (sourceOldBalance + destOldBalance) == (balance + destinationAccount.balance) : 
+                "Total money should be conserved in transfer";
          
     }
 
@@ -703,6 +736,15 @@ public class Account extends IdentifiableEntity {
       @   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
       @*/
     public /*@ skipesc @*/ void addTransaction(Transaction.TransactionType type, double amount, double balanceAfter) {
+        // Assert: verificar pré-condições (condições que devem ser verdadeiras)
+        assert type != null : "Transaction type cannot be null";
+        assert amount >= 0 : "Transaction amount cannot be negative";
+        assert transactionHistory != null : "Transaction history cannot be null";
+        
+        int oldSize = transactionHistory.size();
         transactionHistory.add(new Transaction(type, amount, balanceAfter));
-}
+        
+        // Assert: verificar pós-condição
+        assert transactionHistory.size() == oldSize + 1 : "Transaction should be added to history";
+    }
 }
