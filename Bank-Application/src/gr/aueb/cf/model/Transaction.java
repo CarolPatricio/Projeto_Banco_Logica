@@ -35,13 +35,11 @@ public class Transaction {
      * @param amount the amount involved
      * @param balanceAfter the account balance after the transaction
      */
-    /*@ 
-      @ requires amount >= 0;
-      @ ensures this.type == type;
-      @ ensures this.amount == amount;
-      @ ensures this.balanceAfter == balanceAfter;
-      @ pure 
-      @*/
+    //@ requires amount >= 0;
+    //@ ensures this.type == type;
+    //@ ensures this.amount == amount;
+    //@ ensures this.balanceAfter == balanceAfter;
+    //@ pure 
     public Transaction(TransactionType type, double amount, double balanceAfter) {
         this.type = type;
         this.amount = amount;

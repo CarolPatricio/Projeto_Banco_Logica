@@ -8,7 +8,7 @@ public class SsnNotValidException extends Exception {
 
     //@ requires ssn != null;
     //@ ensures getMessage() != null;
-    /*@ pure @*/
+    //@ pure
     public SsnNotValidException(String ssn) {
         super("Ssn" + ssn + " is not valid");
     }

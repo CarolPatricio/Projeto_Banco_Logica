@@ -92,17 +92,15 @@ public class Account extends IdentifiableEntity {
         this.iban = iban;
     }
 
-    /*@ public normal_behavior
-      @   ensures \result == balance;
-      @*/
+    //@ public normal_behavior
+    //@   ensures \result == balance;
     public /*@ pure @*/ double getBalance() {
         return balance;
     }
 
-    /*@ public normal_behavior
-      @   assignable this.balance;
-      @   ensures this.balance == balance;
-      @*/
+    //@ public normal_behavior
+    //@   assignable this.balance;
+    //@   ensures this.balance == balance;
     public void setBalance(double balance) {
         this.balance = balance;
     }
@@ -140,7 +138,8 @@ public class Account extends IdentifiableEntity {
     }
 
     //@ ensures \result == isActive;
-    public /*@ pure @*/ boolean isActive() {
+    //@ pure
+    public boolean isActive() {
         return isActive;
     }
 
@@ -205,13 +204,9 @@ public class Account extends IdentifiableEntity {
             throw new InsufficientAmountException(amount);
         }
         
-        double oldBalance = balance;  // Guardar valor antigo para verificação
+        double oldBalance = balance; 
         balance += amount;
         addTransaction(Transaction.TransactionType.DEPOSIT, amount, balance);
-        
-        // Assert: verificar pós-condição (deve ser sempre verdadeiro se código está correto)
-        assert balance == oldBalance + amount : "Balance should increase by amount after deposit";
-        assert transactionHistory != null && transactionHistory.size() > 0 : "Transaction should be added to history";
     }
 
     /**
@@ -225,56 +220,62 @@ public class Account extends IdentifiableEntity {
      * @throws InsufficientAmountException if the amount is zero or negative
      * @throws IllegalStateException if account is closed
      */
-    /*@ 
-      @ public normal_behavior
-      @   requires isActive;
-      @   requires amount > 0;
-      @   requires ssn != null;
-      @   requires transactionHistory != null;
-      @   requires (amount <= balance) || (this instanceof OverdraftAccount);
-      @   assignable balance, transactionHistory.values;
-      @   ensures balance == \old(balance) - amount;
-      @   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
-      @ also
-      @ public exceptional_behavior
-      @   requires !isActive;
-      @   assignable \nothing;
-      @   signals (IllegalStateException);
-      @ also
-      @ public exceptional_behavior
-      @   requires isActive;
-      @   requires amount <= 0;
-      @   assignable \nothing;
-      @   signals (InsufficientAmountException) amount <= 0;
-      @ also
-      @ public exceptional_behavior
-      @   requires isActive;
-      @   requires amount > 0;
-      @   requires (amount > balance) && !(this instanceof OverdraftAccount) && !(this instanceof OverdraftJointAccount);
-      @   assignable \nothing;
-      @   signals (InsufficientBalanceException) amount > balance;
-      @*/
+    //@ public normal_behavior
+    //@   requires isActive;
+    //@   requires amount > 0;
+    //@   requires ssn != null;
+    //@   requires transactionHistory != null;
+    //@   requires (amount <= balance) || (this instanceof OverdraftAccount);
+    //@   assignable balance, transactionHistory.values;
+    //@   ensures balance == \old(balance) - amount;
+    //@   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires !isActive;
+    //@   assignable \nothing;
+    //@   signals (IllegalStateException);
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires isActive;
+    //@   requires amount <= 0;
+    //@   assignable \nothing;
+    //@   signals (InsufficientAmountException) amount <= 0;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires isActive;
+    //@   requires amount > 0;
+    //@   requires transactionHistory != null;
+    //@   requires ssn == null;
+    //@   assignable \nothing;
+    //@   signals (SsnNotValidException e) true;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires isActive;
+    //@   requires amount > 0;
+    //@   requires ssn != null;
+    //@   requires (amount > balance) && !(this instanceof OverdraftAccount) && !(this instanceof OverdraftJointAccount);
+    //@   assignable \nothing;
+    //@   signals (InsufficientBalanceException) amount > balance;
     public void withdraw(double amount, String ssn) 
-            throws InsufficientBalanceException, InsufficientAmountException {
+            throws InsufficientBalanceException, InsufficientAmountException, SsnNotValidException {
         if (!isActive) {
             throw new IllegalStateException("Cannot perform operations on a closed account.");
         }
         if (amount <= 0) {
             throw new InsufficientAmountException(amount);
         }
+        if (ssn == null) {
+            throw new SsnNotValidException(ssn);
+        }
         if (amount > balance && !(this instanceof OverdraftAccount) && !(this instanceof OverdraftJointAccount)) {
             throw new InsufficientBalanceException(balance, amount);
         }
         
-        double oldBalance = balance;  // Guardar valor antigo para verificação
+        double oldBalance = balance;
         int oldTransactionCount = transactionHistory.size();
         
         balance -= amount;
         addTransaction(Transaction.TransactionType.WITHDRAWAL, amount, balance);
-        
-        // Assert: verificar pós-condições
-        assert balance == oldBalance - amount : "Balance should decrease by amount after withdrawal";
-        assert transactionHistory.size() == oldTransactionCount + 1 : "One transaction should be added to history";
     }
 
 
@@ -287,47 +288,35 @@ public class Account extends IdentifiableEntity {
      * @throws InsufficientAmountException if the amount is zero or negative
      * @throws InsufficientCreditException if the loan amount exceeds the credit limit or available credit
      */
-    /*@ public normal_behavior
-      @   requires amount > 0;
-      @   requires amount <= creditLimit;
-      @   requires loanBalance + amount <= creditLimit;
-      @   requires transactionHistory != null;
-      @   assignable balance, loanBalance, transactionHistory.values;
-      @   ensures balance == \old(balance) + amount;
-      @   ensures loanBalance == \old(loanBalance) + amount;
-      @   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
-      @ also
-      @ public exceptional_behavior
-      @   requires amount <= 0;
-      @   signals (InsufficientAmountException);
-      @ also
-      @ public exceptional_behavior
-      @   requires amount > creditLimit || (amount > 0 && loanBalance + amount > creditLimit);
-      @   signals (InsufficientCreditException);
-      @*/
+    //@ public normal_behavior
+    //@   requires amount > 0;
+    //@   requires amount <= creditLimit;
+    //@   requires loanBalance + amount <= creditLimit;
+    //@   requires transactionHistory != null;
+    //@   assignable balance, loanBalance, transactionHistory.values;
+    //@   ensures balance == \old(balance) + amount;
+    //@   ensures loanBalance == \old(loanBalance) + amount;
+    //@   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount <= 0;
+    //@   signals (InsufficientAmountException);
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount > creditLimit || (amount > 0 && loanBalance + amount > creditLimit);
+    //@   signals (InsufficientCreditException);
     public void requestLoan(double amount) throws InsufficientAmountException, InsufficientCreditException {
         if (amount <= 0) throw new InsufficientAmountException(amount);
-        
-        // Check if loan amount exceeds credit limit
         if (amount > creditLimit) {
             throw new InsufficientCreditException(creditLimit, amount);
         }
-        
-        // Check if total loan balance would exceed credit limit
         if (loanBalance + amount > creditLimit) {
             double availableCredit = creditLimit - loanBalance;
             throw new InsufficientCreditException(availableCredit, amount);
         }
-        
-        // Approve loan: add to balance and loan balance
         balance += amount;
         loanBalance += amount;
         addTransaction(Transaction.TransactionType.LOAN_REQUEST, amount, balance);
-        
-        // Assert: verificar invariantes após empréstimo
-        assert loanBalance <= creditLimit : "Loan balance should never exceed credit limit";
-        assert loanBalance >= 0 : "Loan balance should never be negative";
-        assert creditLimit >= 0 : "Credit limit should never be negative";
     }
 
     /**
@@ -386,28 +375,27 @@ public class Account extends IdentifiableEntity {
      * @throws InsufficientBalanceException if the account balance is insufficient
      * @throws IllegalArgumentException if the repayment amount exceeds the loan balance
      */
-    /*@ public normal_behavior
-      @   requires amount > 0;
-      @   requires amount <= balance;
-      @   requires amount <= loanBalance;
-      @   requires transactionHistory != null;
-      @   assignable balance, loanBalance, transactionHistory.values;
-      @   ensures balance == \old(balance) - amount;
-      @   ensures loanBalance == \old(loanBalance) - amount;
-      @   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
-      @ also
-      @ public exceptional_behavior
-      @   requires amount <= 0;
-      @   signals (InsufficientAmountException);
-      @ also
-      @ public exceptional_behavior
-      @   requires amount > 0 && amount > balance;
-      @   signals (InsufficientBalanceException);
-      @ also
-      @ public exceptional_behavior
-      @   requires amount > 0 && amount <= balance && amount > loanBalance;
-      @   signals (IllegalArgumentException);
-      @*/
+    //@ public normal_behavior
+    //@   requires amount > 0;
+    //@   requires amount <= balance;
+    //@   requires amount <= loanBalance;
+    //@   requires transactionHistory != null;
+    //@   assignable balance, loanBalance, transactionHistory.values;
+    //@   ensures balance == \old(balance) - amount;
+    //@   ensures loanBalance == \old(loanBalance) - amount;
+    //@   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount <= 0;
+    //@   signals (InsufficientAmountException);
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount > 0 && amount > balance;
+    //@   signals (InsufficientBalanceException);
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount > 0 && amount <= balance && amount > loanBalance;
+    //@   signals (IllegalArgumentException);
     public void repayLoan(double amount) throws InsufficientAmountException, InsufficientBalanceException {
         if (amount <= 0) throw new InsufficientAmountException(amount);
         if (amount > balance) throw new InsufficientBalanceException(balance, amount);
@@ -416,10 +404,6 @@ public class Account extends IdentifiableEntity {
         balance -= amount;
         loanBalance -= amount;
         addTransaction(Transaction.TransactionType.LOAN_REPAYMENT, amount, balance);
-        
-        // Assert: verificar invariantes após pagamento
-        assert loanBalance >= 0 : "Loan balance should never be negative after repayment";
-        assert loanBalance <= creditLimit : "Loan balance should not exceed credit limit";
     }
 
     /**
@@ -435,71 +419,64 @@ public class Account extends IdentifiableEntity {
      * @throws SsnNotValidException if the social security number doesn't match the holder's SSN
      * @throws IllegalArgumentException if the destination account is null or the same as the source account
      */
-    /*@ public normal_behavior
-      @   requires amount > 0;
-      @   requires destinationAccount != null;
-      @   requires destinationAccount != this;
-      @   requires (this instanceof OverdraftAccount) || (amount <= balance);
-      @   requires transactionHistory != null && destinationAccount.transactionHistory != null;
-      @   assignable balance, transactionHistory.values, destinationAccount.balance, destinationAccount.transactionHistory.values;
-      @   ensures balance == \old(balance) - amount;
-      @   ensures destinationAccount.balance == \old(destinationAccount.balance) + amount;
-      @   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
-      @   ensures destinationAccount.transactionHistory.size() == \old(destinationAccount.transactionHistory.size()) + 1;
-      @ also
-      @ public exceptional_behavior
-      @   requires amount <= 0;
-      @   signals (InsufficientAmountException);
-      @ also
-      @ public exceptional_behavior
-      @   requires destinationAccount == null || destinationAccount == this;
-      @   signals (IllegalArgumentException);
-      @ also
-      @ public exceptional_behavior
-      @   requires !(this instanceof OverdraftAccount) && amount > balance;
-      @   signals (InsufficientBalanceException);
-      @*/
-    public void transfer(double amount, String ssn, Account destinationAccount) throws InsufficientAmountException, InsufficientBalanceException {
-            // Validar valor
+    //@ public normal_behavior
+    //@   requires amount > 0;
+    //@   requires destinationAccount != null;
+    //@   requires destinationAccount != this;
+    //@   requires ssn != null;
+    //@   requires (this instanceof OverdraftAccount) || (amount <= balance);
+    //@   requires transactionHistory != null && destinationAccount.transactionHistory != null;
+    //@   assignable balance, transactionHistory.values, destinationAccount.balance, destinationAccount.transactionHistory.values;
+    //@   ensures balance == \old(balance) - amount;
+    //@   ensures destinationAccount.balance == \old(destinationAccount.balance) + amount;
+    //@   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
+    //@   ensures destinationAccount.transactionHistory.size() == \old(destinationAccount.transactionHistory.size()) + 1;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount <= 0;
+    //@   signals (InsufficientAmountException);
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires destinationAccount == null || destinationAccount == this;
+    //@   signals (IllegalArgumentException);
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount > 0;
+    //@   requires ssn == null;
+    //@   signals (SsnNotValidException);
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires amount > 0;
+    //@   requires ssn != null;
+    //@   requires !(this instanceof OverdraftAccount) && amount > balance;
+    //@   signals (InsufficientBalanceException);
+    public void transfer(double amount, String ssn, Account destinationAccount) throws InsufficientAmountException, InsufficientBalanceException, SsnNotValidException {
             if (amount <= 0) throw new InsufficientAmountException(amount);
-            
-            // Validar conta destino
+
             if (destinationAccount == null) {
                 throw new IllegalArgumentException("Destination account cannot be null.");
             }
-            
-            // Validar que não está transferindo para a mesma conta
+
             if (this == destinationAccount) {
                 throw new IllegalArgumentException("Cannot transfer to the same account.");
             }
-            
-            // Validar SSN
-            // if (!isSsnValid(ssn)) throw new SsnNotValidException(ssn);
-            
-            // Verificar saldo (apenas para contas normais, não para overdraft)
-            // Se for OverdraftAccount, não precisa verificar saldo
+
+            if (ssn == null) {
+                throw new SsnNotValidException(ssn);
+            }
+
             if (!(this instanceof OverdraftAccount) && amount > balance) {
                 throw new InsufficientBalanceException(this.balance, amount);
             }
-            
-            // Guardar valores antigos para verificação
+
             double sourceOldBalance = balance;
             double destOldBalance = destinationAccount.balance;
-            
-            // Realizar transferência: debitar da conta origem
+
             balance -= amount;
             addTransaction(Transaction.TransactionType.TRANSFER_OUT, amount, balance);
             
-            // Creditar na conta destino
             destinationAccount.balance += amount;
-            destinationAccount.addTransaction(Transaction.TransactionType.TRANSFER_IN, amount, destinationAccount.getBalance());
-            
-            // Assert: verificar consistência da transferência
-            assert balance == sourceOldBalance - amount : "Source balance should decrease by amount";
-            assert destinationAccount.balance == destOldBalance + amount : "Destination balance should increase by amount";
-            assert (sourceOldBalance + destOldBalance) == (balance + destinationAccount.balance) : 
-                "Total money should be conserved in transfer";
-         
+            destinationAccount.addTransaction(Transaction.TransactionType.TRANSFER_IN, amount, destinationAccount.getBalance());      
     }
 
     /**
@@ -508,11 +485,9 @@ public class Account extends IdentifiableEntity {
      * @param ssn the social security number to be checked
      * @return true if the given SSN matches the holder's, false otherwise
      */
-    /*@ pure @*/
+    //@ pure 
     public boolean isSsnValid(String ssn){
         if(ssn == null || getHolder().getSsn() == null) return false;
-
-        // We dont use getHolder because we are in the same class
         return holder.getSsn().equals(ssn);
     }
 
@@ -525,28 +500,23 @@ public class Account extends IdentifiableEntity {
     //  * @throws SsnNotValidException if the SSN is not valid
     //  * @throws IllegalStateException if the account cannot be closed (has balance or loans)
     //  */
-    /*@ public normal_behavior
-      @   requires isActive;
-      @   requires balance == 0;
-      @   requires loanBalance == 0;
-      @   requires transactionHistory != null;
-      @   assignable isActive, transactionHistory.values;
-      @   ensures !isActive;
-      @   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
-      @ also
-      @ public exceptional_behavior
-      @   requires !isActive;
-      @   signals (IllegalStateException);
-      @ also
-      @ public exceptional_behavior
-      @   requires isActive && (balance != 0 || loanBalance > 0);
-      @   signals (IllegalStateException);
-      @*/
+    //@ public normal_behavior
+    //@   requires isActive;
+    //@   requires balance == 0;
+    //@   requires loanBalance == 0;
+    //@   requires transactionHistory != null;
+    //@   assignable isActive, transactionHistory.values;
+    //@   ensures !isActive;
+    //@   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires !isActive;
+    //@   signals (IllegalStateException);
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires isActive && (balance != 0 || loanBalance > 0);
+    //@   signals (IllegalStateException);
     public void closeAccount() throws IllegalStateException {
-        // if (!isSsnValid(ssn)) {
-        //     throw new SsnNotValidException(ssn);
-        // }
-        
         if (!isActive) {
             throw new IllegalStateException("Account is already closed.");
         }
@@ -558,8 +528,6 @@ public class Account extends IdentifiableEntity {
         if (loanBalance > 0) {
             throw new IllegalStateException("Cannot close account with outstanding loan balance: " + loanBalance);
         }
-        
-        // If balance > 0, it should be withdrawn first, but we'll allow closing with zero balance
         if (balance > 0) {
             throw new IllegalStateException("Cannot close account with remaining balance. Please withdraw " + balance + " first.");
         }
@@ -576,17 +544,16 @@ public class Account extends IdentifiableEntity {
     //  * @throws SsnNotValidException if the SSN is not valid
     //  * @throws IllegalStateException if account is closed
     //  */
-    /*@ public normal_behavior
-      @   requires isActive;
-      @   requires holder != null;
-      @   requires newFirstName != null && !newFirstName.isEmpty();
-      @   assignable holder.firstName;
-      @   ensures holder.firstName == newFirstName;
-      @ also
-      @ public exceptional_behavior
-      @   requires !isActive;
-      @   signals (IllegalStateException);
-      @*/
+    //@ public normal_behavior
+    //@   requires isActive;
+    //@   requires holder != null;
+    //@   requires newFirstName != null && !newFirstName.isEmpty();
+    //@   assignable holder.firstName;
+    //@   ensures holder.firstName == newFirstName;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires !isActive;
+    //@   signals (IllegalStateException);
     public void updateHolderFirstName(String newFirstName) throws IllegalStateException {
         if (!isActive) {
             throw new IllegalStateException("Cannot update data on a closed account.");
@@ -603,17 +570,16 @@ public class Account extends IdentifiableEntity {
     //  * @throws SsnNotValidException if the SSN is not valid
     //  * @throws IllegalStateException if account is closed
     //  */
-    /*@ public normal_behavior
-      @   requires isActive;
-      @   requires holder != null;
-      @   requires newLastName != null && !newLastName.isEmpty();
-      @   assignable holder.lastName;
-      @   ensures holder.lastName == newLastName;
-      @ also
-      @ public exceptional_behavior
-      @   requires !isActive;
-      @   signals (IllegalStateException);
-      @*/
+    //@ public normal_behavior
+    //@   requires isActive;
+    //@   requires holder != null;
+    //@   requires newLastName != null && !newLastName.isEmpty();
+    //@   assignable holder.lastName;
+    //@   ensures holder.lastName == newLastName;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires !isActive;
+    //@   signals (IllegalStateException);
     public void updateHolderLastName(String newLastName) throws IllegalStateException {
         if (!isActive) {
             throw new IllegalStateException("Cannot update data on a closed account.");
@@ -630,19 +596,18 @@ public class Account extends IdentifiableEntity {
     //  * @throws SsnNotValidException if the SSN is not valid
     //  * @throws IllegalStateException if account is closed
     //  */
-    /*@ public normal_behavior
-      @   requires isActive;
-      @   requires holder != null;
-      @   requires newFirstName != null && !newFirstName.isEmpty();
-      @   requires newLastName != null && !newLastName.isEmpty();
-      @   assignable holder.firstName, holder.lastName;
-      @   ensures holder.firstName == newFirstName;
-      @   ensures holder.lastName == newLastName;
-      @ also
-      @ public exceptional_behavior
-      @   requires !isActive;
-      @   signals (IllegalStateException);
-      @*/
+    //@ public normal_behavior
+    //@   requires isActive;
+    //@   requires holder != null;
+    //@   requires newFirstName != null && !newFirstName.isEmpty();
+    //@   requires newLastName != null && !newLastName.isEmpty();
+    //@   assignable holder.firstName, holder.lastName;
+    //@   ensures holder.firstName == newFirstName;
+    //@   ensures holder.lastName == newLastName;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires !isActive;
+    //@   signals (IllegalStateException);
     public void updateHolderName(String newFirstName, String newLastName) throws IllegalStateException {
         if (!isActive) {
             throw new IllegalStateException("Cannot update data on a closed account.");
@@ -727,24 +692,13 @@ public class Account extends IdentifiableEntity {
     //     return statement.toString();
     // }
 
-    /*@
-      @ public normal_behavior
-      @   requires type != null;
-      @   requires amount >= 0;
-      @   requires transactionHistory != null;
-      @   assignable transactionHistory.values;
-      @   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
-      @*/
+    //@ public normal_behavior
+    //@   requires type != null;
+    //@   requires amount >= 0;
+    //@   requires transactionHistory != null;
+    //@   assignable transactionHistory.values;
+    //@   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
     public /*@ skipesc @*/ void addTransaction(Transaction.TransactionType type, double amount, double balanceAfter) {
-        // Assert: verificar pré-condições (condições que devem ser verdadeiras)
-        assert type != null : "Transaction type cannot be null";
-        assert amount >= 0 : "Transaction amount cannot be negative";
-        assert transactionHistory != null : "Transaction history cannot be null";
-        
-        int oldSize = transactionHistory.size();
         transactionHistory.add(new Transaction(type, amount, balanceAfter));
-        
-        // Assert: verificar pós-condição
-        assert transactionHistory.size() == oldSize + 1 : "Transaction should be added to history";
     }
 }

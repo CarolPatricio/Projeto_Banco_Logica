@@ -38,26 +38,24 @@ public class OverdraftJointAccount extends JointAccount{
      * @throws SsnNotValidException if the social security number doesn't match the holder's SSN
      * @throws InsufficientAmountException if the amount is zero or negative
      */
-    /*@
-      @ also
-      @ public normal_behavior
-      @   requires isActive;
-      @   requires amount > 0;
-      @   requires ssn != null;
-      @   requires transactionHistory != null;
-      @   assignable balance, transactionHistory.values;
-      @   ensures balance == \old(balance) - amount;
-      @   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
-      @ also
-      @ public exceptional_behavior
-      @   requires !isActive;
-      @   signals (IllegalStateException);
-      @ also
-      @ public exceptional_behavior
-      @   requires isActive;
-      @   requires amount <= 0;
-      @   signals (InsufficientAmountException) amount <= 0;
-      @*/
+    //@ also
+    //@ public normal_behavior
+    //@   requires isActive;
+    //@   requires amount > 0;
+    //@   requires ssn != null;
+    //@   requires transactionHistory != null;
+    //@   assignable balance, transactionHistory.values;
+    //@   ensures balance == \old(balance) - amount;
+    //@   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires !isActive;
+    //@   signals (IllegalStateException);
+    //@ also
+    //@ public exceptional_behavior
+    //@   requires isActive;
+    //@   requires amount <= 0;
+    //@   signals (InsufficientAmountException) amount <= 0;
     @Override
     public void withdraw(double amount, String ssn) throws InsufficientAmountException {
         if (!isActive) {
