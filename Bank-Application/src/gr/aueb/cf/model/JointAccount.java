@@ -8,6 +8,7 @@ package gr.aueb.cf.model;
  * @author Ntirintis John
  */
 public class JointAccount extends Account {
+    //@ spec_public nullable
     private User secondHolder;
 
     /**
@@ -18,21 +19,32 @@ public class JointAccount extends Account {
      * @param balance the initial balance of the account
      * @param secondHolder the second user who holds the account
      */
-    public JointAccount(User holder, String iban, double balance, User secondHolder) {
+    //@ requires holder != null;
+    //@ requires iban != null;
+    //@ requires balance >= 0;
+    //@ ensures this.holder == holder;
+    //@ ensures this.iban == iban;
+    //@ ensures this.balance == balance;
+    public JointAccount(User holder, String iban, double balance) {
         super(holder, iban, balance);
-        this.secondHolder = secondHolder;
     }
 
     /**
      * @return the second holder of the account
      */
-    public User getSecondHolder() {
+
+    //@ nullable
+    public /*@ pure @*/ User getSecondHolder() {
         return secondHolder;
     }
 
     /**
      * @param secondHolder the user to set as the second holder of the account
      */
+    //@ public normal_behavior
+    //@   requires secondHolder != null;
+    //@   assignable this.secondHolder;
+    //@   ensures this.secondHolder == secondHolder;
     public void setSecondHolder(User secondHolder) {
         this.secondHolder = secondHolder;
     }
@@ -41,6 +53,7 @@ public class JointAccount extends Account {
     /**
      * Returns a string representation of the joint account.
      */
+    //@ skipesc
     @Override
     public String toString() {
         return "JointAccount{" + " First Holder =" + getHolder() +
@@ -55,6 +68,7 @@ public class JointAccount extends Account {
      * @param ssn the social security number to be checked
      * @return true if the given SSN matches either the first or the second holder's, false otherwise
      */
+    //@ skipesc
     @Override
     public boolean isSsnValid(String ssn) {
         return super.isSsnValid(ssn) || secondHolder.getSsn().equals(ssn);

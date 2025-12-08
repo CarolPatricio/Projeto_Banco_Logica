@@ -32,7 +32,7 @@ public class Account extends IdentifiableEntity {
     //@ spec_public
     private double interestRate;
     //@ spec_public
-    private boolean isActive;
+    protected boolean isActive;
     //@ spec_public nullable
     private List<Transaction> transactionHistory = new ArrayList<>();
 
@@ -250,7 +250,7 @@ public class Account extends IdentifiableEntity {
       @ public exceptional_behavior
       @   requires isActive;
       @   requires amount > 0;
-      @   requires (amount > balance) && !(this instanceof OverdraftAccount);
+      @   requires (amount > balance) && !(this instanceof OverdraftAccount) && !(this instanceof OverdraftJointAccount);
       @   assignable \nothing;
       @   signals (InsufficientBalanceException) amount > balance;
       @*/
@@ -262,7 +262,7 @@ public class Account extends IdentifiableEntity {
         if (amount <= 0) {
             throw new InsufficientAmountException(amount);
         }
-        if (amount > balance && !(this instanceof OverdraftAccount)) {
+        if (amount > balance && !(this instanceof OverdraftAccount) && !(this instanceof OverdraftJointAccount)) {
             throw new InsufficientBalanceException(balance, amount);
         }
         
