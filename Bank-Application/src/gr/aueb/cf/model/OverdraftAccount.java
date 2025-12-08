@@ -20,11 +20,9 @@ public class OverdraftAccount extends Account {
      * @param iban the international bank account number of the account
      * @param balance the initial balance of the account
      */
-    /*@
-      @ requires holder != null;
-      @ requires iban != null;
-      @ requires balance >= 0;
-      @*/
+    //@ requires holder != null;
+    //@ requires iban != null;
+    //@ requires balance >= 0;
     public OverdraftAccount(User holder, String iban, double balance) {
         super(holder, iban, balance);
     }
@@ -38,36 +36,38 @@ public class OverdraftAccount extends Account {
      * @throws SsnNotValidException if the social security number doesn't match the holder's SSN
      * @throws InsufficientAmountException if the amount is zero or negative
      */
-    // /*@
-    //   @ also
-    //   @ public normal_behavior
-    //   @   requires isActive;
-    //   @   requires amount > 0;
-    //   @   requires ssn != null;
-    //   @   requires transactionHistory != null;
-    //   @   assignable balance, transactionHistory.values;
-    //   @   ensures balance == \old(balance) - amount;
-    //   @   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
-    //   @ also
-    //   @ public exceptional_behavior
-    //   @   requires !isActive;
-    //   @   signals (IllegalStateException);
-    //   @ also
-    //   @ public exceptional_behavior
-    //   @   requires isActive;
-    //   @   requires amount <= 0;
-    //   @   signals (InsufficientAmountException) amount <= 0;
-    //   @*/
-    // @Override
-    // public void withdraw(double amount, String ssn) 
-    //         throws InsufficientAmountException {
-    //     if (!isActive()) {
-    //         throw new IllegalStateException("Cannot perform operations on a closed account.");
-    //     }
-    //     if (amount <= 0) {
-    //         throw new InsufficientAmountException(amount);
-    //     }
-    //     setBalance(getBalance() - amount);
-    //     addTransaction(Transaction.TransactionType.WITHDRAWAL, amount, getBalance());
-    // }
+    /*@
+      @ also
+      @ public normal_behavior
+      @   requires isActive;
+      @   requires amount > 0;
+      @   requires ssn != null;
+      @   requires transactionHistory != null;
+      @   assignable balance, transactionHistory.values;
+      @   ensures balance == \old(balance) - amount;
+      @   ensures transactionHistory.size() == \old(transactionHistory.size()) + 1;
+      @ also
+      @ public exceptional_behavior
+      @   requires !isActive;
+      @   assignable \nothing;
+      @   signals (IllegalStateException);
+      @ also
+      @ public exceptional_behavior
+      @   requires isActive;
+      @   requires amount <= 0;
+      @   assignable \nothing;
+      @   signals (InsufficientAmountException) amount <= 0;
+      @*/
+    @Override
+    public void withdraw(double amount, String ssn) 
+            throws InsufficientAmountException {
+        if (!isActive) {
+            throw new IllegalStateException("Cannot perform operations on a closed account.");
+        }
+        if (amount <= 0) {
+            throw new InsufficientAmountException(amount);
+        }
+        setBalance(getBalance() - amount);
+        addTransaction(Transaction.TransactionType.WITHDRAWAL, amount, getBalance());
+    }
 }

@@ -15,38 +15,24 @@ import gr.aueb.cf.exceptions.InsufficientCreditException;
 public class Card {
     //@ spec_public
     //@ nullable
-    //@ spec_public
-    //@ nullable
     private User holder;
-    //@ spec_public
-    //@ nullable
     //@ spec_public
     //@ nullable
     private Account account;
     //@ spec_public
     //@ nullable
-    //@ spec_public
-    //@ nullable
     private String number;
-    //@ spec_public
-    //@ nullable
     //@ spec_public
     //@ nullable
     private String pin;
     //@ spec_public
     //@ nullable
-    //@ spec_public
-    //@ nullable
     private String cvv;
-    //@ spec_public
-    //@ nullable
     //@ spec_public
     //@ nullable
     private String expiryDate;
     //@ spec_public
-    //@ spec_public
     private double creditLimit;
-    //@ spec_public
     //@ spec_public
     private double bill;
 
@@ -58,17 +44,8 @@ public class Card {
     //@ public invariant expiryDate != null;
     //@ public invariant creditLimit >= 0;
     //@ public invariant bill >= 0;
-    //@ public invariant holder != null;
-    //@ public invariant account != null;
-    //@ public invariant number != null;
-    //@ public invariant pin != null;
-    //@ public invariant cvv != null;
-    //@ public invariant expiryDate != null;
-    //@ public invariant creditLimit >= 0;
-    //@ public invariant bill >= 0;
 
     /**
-     * Constructor initializing a card with all attributes.
      * Constructor initializing a card with all attributes.
      * 
      * @param holder      the user who holds the card.
@@ -80,21 +57,6 @@ public class Card {
      * @param creditLimit the card credit limit.
      * @param bill        the card bill has the initial value of 0.
      */
-    //@ requires holder != null;
-    //@ requires account != null;
-    //@ requires number != null && !number.isEmpty();
-    //@ requires pin != null;
-    //@ requires cvv != null;
-    //@ requires expiryDate != null;
-    //@ requires creditLimit >= 0;
-    //@ ensures this.holder == holder;
-    //@ ensures this.account == account;
-    //@ ensures this.number == number;
-    //@ ensures this.pin == pin;
-    //@ ensures this.cvv == cvv;
-    //@ ensures this.expiryDate == expiryDate;
-    //@ ensures this.creditLimit == creditLimit;
-    //@ ensures this.bill == 0;
     //@ requires holder != null;
     //@ requires account != null;
     //@ requires number != null && !number.isEmpty();
@@ -126,16 +88,10 @@ public class Card {
     //@ ensures \result != null;
     //@ ensures \result == holder;
     //@ pure
-    //@ ensures \result != null;
-    //@ ensures \result == holder;
-    //@ pure
     public User getHolder() {
         return holder;
     }
 
-    //@ requires holder != null;
-    //@ assignable this.holder;
-    //@ ensures this.holder == holder;
     //@ requires holder != null;
     //@ assignable this.holder;
     //@ ensures this.holder == holder;
@@ -146,16 +102,10 @@ public class Card {
     //@ ensures \result != null;
     //@ ensures \result == account;
     //@ pure
-    //@ ensures \result != null;
-    //@ ensures \result == account;
-    //@ pure
     public Account getAccount() {
         return account;
     }
 
-    //@ requires account != null;
-    //@ assignable this.account;
-    //@ ensures this.account == account;
     //@ requires account != null;
     //@ assignable this.account;
     //@ ensures this.account == account;
@@ -166,16 +116,10 @@ public class Card {
     //@ ensures \result != null;
     //@ ensures \result == number;
     //@ pure
-    //@ ensures \result != null;
-    //@ ensures \result == number;
-    //@ pure
     public String getNumber() {
         return number;
     }
 
-    //@ requires number != null && !number.isEmpty();
-    //@ assignable this.number;
-    //@ ensures this.number == number;
     //@ requires number != null && !number.isEmpty();
     //@ assignable this.number;
     //@ ensures this.number == number;
@@ -186,16 +130,10 @@ public class Card {
     //@ ensures \result != null;
     //@ ensures \result == pin;
     //@ pure
-    //@ ensures \result != null;
-    //@ ensures \result == pin;
-    //@ pure
     public String getPin() {
         return pin;
     }
 
-    //@ requires pin != null;
-    //@ assignable this.pin;
-    //@ ensures this.pin == pin;
     //@ requires pin != null;
     //@ assignable this.pin;
     //@ ensures this.pin == pin;
@@ -206,16 +144,10 @@ public class Card {
     //@ ensures \result != null;
     //@ ensures \result == cvv;
     //@ pure
-    //@ ensures \result != null;
-    //@ ensures \result == cvv;
-    //@ pure
     public String getCvv() {
         return cvv;
     }
 
-    //@ requires cvv != null;
-    //@ assignable this.cvv;
-    //@ ensures this.cvv == cvv;
     //@ requires cvv != null;
     //@ assignable this.cvv;
     //@ ensures this.cvv == cvv;
@@ -226,16 +158,10 @@ public class Card {
     //@ ensures \result != null;
     //@ ensures \result == expiryDate;
     //@ pure
-    //@ ensures \result != null;
-    //@ ensures \result == expiryDate;
-    //@ pure
     public String getExpiryDate() {
         return expiryDate;
     }
 
-    //@ requires expiryDate != null;
-    //@ assignable this.expiryDate;
-    //@ ensures this.expiryDate == expiryDate;
     //@ requires expiryDate != null;
     //@ assignable this.expiryDate;
     //@ ensures this.expiryDate == expiryDate;
@@ -245,15 +171,10 @@ public class Card {
 
     //@ ensures \result == creditLimit;
     //@ pure
-    //@ ensures \result == creditLimit;
-    //@ pure
     public double getCreditLimit() {
         return creditLimit;
     }
 
-    //@ requires creditLimit >= 0;
-    //@ assignable this.creditLimit;
-    //@ ensures this.creditLimit == creditLimit;
     //@ requires creditLimit >= 0;
     //@ assignable this.creditLimit;
     //@ ensures this.creditLimit == creditLimit;
@@ -262,7 +183,6 @@ public class Card {
     }
 
     // Returns a string representation of the card
-    //@ skipesc
     //@ skipesc
     @Override
     public String toString() {
@@ -336,50 +256,6 @@ public class Card {
     //@   requires cvv != null;
     //@   assignable \nothing;
     //@   signals (InsufficientCreditException e) amount > creditLimit;
-    //@ public behavior
-    //@   requires amount >= 0;
-    //@   requires amount <= creditLimit;
-    //@   requires holder != null;
-    //@   requires account != null;
-    //@   requires number != null;
-    //@   requires pin != null;
-    //@   requires cvv != null;
-    //@   assignable creditLimit, bill;
-    //@   ensures creditLimit == \old(creditLimit) - amount;
-    //@   ensures bill == \old(bill) + amount;
-    //@ also
-    //@ public exceptional_behavior
-    //@   requires amount < 0;
-    //@   requires holder != null;
-    //@   requires account != null;
-    //@   requires number != null;
-    //@   requires pin != null;
-    //@   requires cvv != null;
-    //@   assignable \nothing;
-    //@   signals (InsufficientAmountException e) amount < 0;
-    //@ also
-    //@ public exceptional_behavior
-    //@   requires amount >= 0;
-    //@   requires amount <= creditLimit;
-    //@   requires holder != null;
-    //@   requires account != null;
-    //@   requires number != null;
-    //@   requires pin != null;
-    //@   requires cvv != null;
-    //@   requires !account.isSsnValid(ssn);
-    //@   assignable \nothing;
-    //@   signals (SsnNotValidException e) true;
-    //@ also
-    //@ public exceptional_behavior
-    //@   requires amount >= 0;
-    //@   requires amount > creditLimit;
-    //@   requires holder != null;
-    //@   requires account != null;
-    //@   requires number != null;
-    //@   requires pin != null;
-    //@   requires cvv != null;
-    //@   assignable \nothing;
-    //@   signals (InsufficientCreditException e) amount > creditLimit;
     public void creditPurchase(double amount, String ssn, String number, String pin, String cvv)
             throws SsnNotValidException, InsufficientAmountException, InsufficientCreditException {
         if (amount < 0)
@@ -388,15 +264,7 @@ public class Card {
             throw new SsnNotValidException(ssn);
         if (amount > creditLimit)
             throw new InsufficientCreditException(getCreditLimit(), amount);
-        if (amount < 0)
-            throw new InsufficientAmountException(amount);
-        if (!account.isSsnValid(ssn))
-            throw new SsnNotValidException(ssn);
-        if (amount > creditLimit)
-            throw new InsufficientCreditException(getCreditLimit(), amount);
 
-        creditLimit -= amount;
-        bill += amount;
         creditLimit -= amount;
         bill += amount;
     }
@@ -441,39 +309,6 @@ public class Card {
     //@   requires account != null;
     //@   assignable \nothing;
     //@   signals (InsufficientBalanceException e) amount > account.getBalance();
-    //@ public behavior
-    //@   requires amount > 0;
-    //@   requires amount <= account.getBalance();
-    //@   requires holder != null;
-    //@   requires account != null;
-    //@   requires account.isSsnValid(ssn);
-    //@   assignable account.balance;
-    //@   ensures account.getBalance() == \old(account.getBalance()) - amount;
-    //@ also
-    //@ public exceptional_behavior
-    //@   requires amount < 0;
-    //@   requires holder != null;
-    //@   requires account != null;
-    //@   assignable \nothing;
-    //@   signals (InsufficientAmountException e) amount < 0;
-    //@ also
-    //@ public exceptional_behavior
-    //@   requires amount >= 0;
-    //@   requires holder != null;
-    //@   requires account != null;
-    //@   requires !account.isSsnValid(ssn);
-    //@   assignable \nothing;
-    //@   signals (SsnNotValidException e) true;
-    //@ also
-    //@ public exceptional_behavior
-    //@   requires amount > 0;
-    //@   requires holder != null;
-    //@   requires account != null;
-    //@   requires account.isSsnValid(ssn);
-    //@   requires amount > account.getBalance();
-    //@   assignable \nothing;
-    //@   signals (InsufficientBalanceException e) amount > account.getBalance();
-    //@ skipesc
     public void debitPurchase(double amount, String ssn)
             throws InsufficientAmountException, InsufficientBalanceException, SsnNotValidException {
         if (amount < 0)
@@ -540,55 +375,6 @@ public class Card {
     //@   requires account != null;
     //@   assignable \nothing;
     //@   signals (InsufficientBalanceException e) amount > account.getBalance();
-    //@ public behavior
-    //@   requires amount > 0;
-    //@   requires amount <= account.getBalance();
-    //@   requires holder != null;
-    //@   requires account != null;
-    //@   requires number != null;
-    //@   requires account.isSsnValid(ssn);
-    //@   requires amount <= bill;
-    //@   assignable bill, account.balance;
-    //@   ensures bill == \old(bill) - amount;
-    //@ also
-    //@ public behavior
-    //@   requires amount > 0;
-    //@   requires bill <= account.getBalance();
-    //@   requires holder != null;
-    //@   requires account != null;
-    //@   requires number != null;
-    //@   requires account.isSsnValid(ssn);
-    //@   requires amount > bill;
-    //@   assignable bill, account.balance;
-    //@   ensures bill == 0;
-    //@ also
-    //@ public exceptional_behavior
-    //@   requires amount < 0;
-    //@   requires holder != null;
-    //@   requires account != null;
-    //@   requires number != null;
-    //@   assignable \nothing;
-    //@   signals (InsufficientAmountException e) amount < 0;
-    //@ also
-    //@ public exceptional_behavior
-    //@   requires amount >= 0;
-    //@   requires holder != null;
-    //@   requires account != null;
-    //@   requires number != null;
-    //@   requires !account.isSsnValid(ssn);
-    //@   assignable \nothing;
-    //@   signals (SsnNotValidException e) true;
-    //@ also
-    //@ public exceptional_behavior
-    //@   requires amount > 0;
-    //@   requires holder != null;
-    //@   requires account != null;
-    //@   requires number != null;
-    //@   requires account.isSsnValid(ssn);
-    //@   requires amount > account.getBalance();
-    //@   assignable \nothing;
-    //@   signals (InsufficientBalanceException e) amount > account.getBalance();
-    //@ skipesc
     public void payBillWithBalance(double amount, String ssn, String number)
             throws InsufficientAmountException, InsufficientBalanceException, SsnNotValidException {
         if (amount < 0)

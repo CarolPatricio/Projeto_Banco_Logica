@@ -15,6 +15,7 @@ public class IdentifiableEntity {
 
     //@ ensures \result == id;
     //@ ensures \result >= 0;
+    //@ pure
     public long getId() {
         return id;
     }
